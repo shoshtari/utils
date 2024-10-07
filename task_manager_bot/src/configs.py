@@ -1,9 +1,9 @@
 import os
 
 
-def get_env(env: str, default = "", needed: bool = False):
-    """ 
-    if needed is True, default will be ignored 
+def get_env(env: str, default="", needed: bool = False):
+    """
+    if needed is True, default will be ignored
     """
 
     PREFIX = "BOT_"
@@ -15,9 +15,9 @@ def get_env(env: str, default = "", needed: bool = False):
     return default
 
 
-BOT_TOKEN = get_env("TOKEN", needed = True)
-API_ID = get_env("API_ID", needed = True)
-API_HASH = get_env("API_HASH", needed = True)
+BOT_TOKEN = get_env("TOKEN", needed=True)
+API_ID = get_env("API_ID", needed=True)
+API_HASH = get_env("API_HASH", needed=True)
 
 
-ADMIN_ID = get_env("ADMIN_ID",  0, needed = True)
+ADMIN_ID = get_env("ADMIN_ID", 0, needed=True)

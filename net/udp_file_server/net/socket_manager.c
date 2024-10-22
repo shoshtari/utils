@@ -1,6 +1,7 @@
 #include "socket_manager.h"
 
 #include <pthread.h>
+#include <semaphore.h>
 #include <stdint.h>
 
 #include "socket.h"
@@ -24,8 +25,9 @@ int ackmap_key_compare(void *k1pointer, void *k2pointer) {
 
 uint32_t ackmap_hash(void *rawBuffer, int cardinality) {
   ackmap_key *buffer = rawBuffer;
-  uint32_t h =  (buffer->addr.sin_addr.s_addr + buffer->seqnumber) % cardinality;
-  /*printf("CALC_HASH %d %d %d\n", buffer->addr.sin_addr.s_addr, buffer->seqnumber, h);*/
+  uint32_t h = (buffer->addr.sin_addr.s_addr + buffer->seqnumber) % cardinality;
+  /*printf("CALC_HASH %d %d %d\n", buffer->addr.sin_addr.s_addr,
+   * buffer->seqnumber, h);*/
   return h;
 }
 
@@ -43,6 +45,7 @@ socket_manager *new_socket_manager(int socket_fd) {
   pthread_mutex_init(manager->seqlock, NULL);
   manager->seqnumber = 1;
   manager->fd = socket_fd;
+  manager->running = 1;
   return manager;
 }
 
@@ -83,6 +86,11 @@ Packet newPacket(struct sockaddr_in *addr, char *buf, int bufferSize) {
   return packet;
 }
 
+void destroy_packet(Packet packet) {
+  free(packet.buffer);
+  free(packet.addr);
+}
+
 int send_and_wait_for_ack(socket_manager *manager, Packet packet,
                           unsigned short seqnumber) {
   ackmap_key *key = calloc(sizeof(ackmap_key), 1);
@@ -91,9 +99,9 @@ int send_and_wait_for_ack(socket_manager *manager, Packet packet,
 
   int ackReceived = 0;
   hashmap_set(manager->ack_map, key, &ackReceived);
-  void* check = hashmap_get(manager->ack_map, key);
-  if (check == NULL){
-	  printf("hashmap sucks!\n");
+  void *check = hashmap_get(manager->ack_map, key);
+  if (check == NULL) {
+    printf("hashmap sucks!\n");
   }
 
   int count = 0;
@@ -110,6 +118,7 @@ int send_and_wait_for_ack(socket_manager *manager, Packet packet,
     if (send_to_socket(manager->fd, packet.buffer, packet.size, packet.addr) <
         0) {
       perror("couldn't send data to socket");
+      exit(1);
       break;
     }
 
@@ -119,6 +128,7 @@ int send_and_wait_for_ack(socket_manager *manager, Packet packet,
   }
 
   hashmap_del(manager->ack_map, key);
+  free(key);
   return 0;
 }
 
@@ -130,7 +140,9 @@ int send_ack(socket_manager *manager, char *received_buf,
   set_protocol_headers(manager, buf, seqnumber);
   printf("sending ack %hu\n", seqnumber);
 
-  return send_to_socket(manager->fd, buf, PROTOCOL_OVERHEAD, addr);
+  int ans = send_to_socket(manager->fd, buf, PROTOCOL_OVERHEAD, addr);
+  free(buf);
+  return ans;
 }
 
 int handle_recieved_app_packet(socket_manager *manager, Packet packet) {
@@ -152,9 +164,12 @@ int handle_recieved_ack_packet(socket_manager *manager, Packet packet) {
   key->addr = *packet.addr;
   key->seqnumber = *((unsigned short *)(packet.buffer + 1));
 
+  destroy_packet(packet);
   /*printf("SEQ %hu acked successfully, hash: %d size: %d\n", key->seqnumber,*/
   /*       ackmap_hash(key, ACKMAP_CARDINALITY), manager->ack_map->size);*/
   int *status = hashmap_get(manager->ack_map, key);
+
+  free(key);
   if (status == NULL) {
     return 0;
   }
@@ -177,7 +192,8 @@ void app_send(socket_manager *manager, Packet packet) {
 
   if (packet.size > 0) {
     printf("sending: %u %hu to %d:%d \n", packet.buffer[0],
-           *(packet.buffer + 1), packet.addr->sin_addr, packet.addr->sin_port);
+           *(packet.buffer + 1), packet.addr->sin_addr.s_addr,
+           packet.addr->sin_port);
   }
   // send_to_socket(manager->fd, packet.buffer, packet.size, packet.addr);
   // return;
@@ -185,6 +201,7 @@ void app_send(socket_manager *manager, Packet packet) {
   if (send_and_wait_for_ack(manager, packet, seqnumber) < 0) {
     perror("couldn't send packet");
   }
+  free(new_buffer);
 }
 
 Packet *app_recv(socket_manager *manager) {
@@ -216,8 +233,8 @@ int run_recv_daemon(socket_manager *manager) {
     Packet packet = newPacket(&client_addr, buf, recv_len);
     unsigned char packet_type = *((unsigned char *)buf);
 
-    printf("daemon recieved %u %hu %s from %d:%d\n", packet_type, *(buf + 1),
-           buf + 3, client_addr.sin_addr.s_addr, client_addr.sin_port);
+    printf("daemon recieved %u %hu from %d:%d\n", packet_type, *(buf + 1),
+           client_addr.sin_addr.s_addr, client_addr.sin_port);
     switch (packet_type) {
     case 0:
       if (handle_recieved_app_packet(manager, packet)) {
@@ -247,10 +264,29 @@ void *run_recv_daemon_async(void *arg) {
 }
 
 void destroy_socket_manager(socket_manager *manager) {
+  manager->running = 0;
   sleep(CONN_TEAR_DOWN_SLEEP);
 
+  pthread_cancel(manager->recvDaemonID);
+
   destroy_hashmap(manager->ack_map);
-  // destroy_linklist(manager->recieve_buffer);
+
+  lock_rwmutex(manager->recieve_buffer->mutex);
+  linklist_entry *iterator = manager->recieve_buffer->root;
+  while (iterator != NULL) {
+    Packet *packet = iterator->data;
+    destroy_packet(*packet);
+    iterator = iterator->next;
+  }
+  unlock_rwmutex(manager->recieve_buffer->mutex);
+
+  destroy_linklist(manager->recieve_buffer);
+
+  sem_destroy(manager->recieve_notify);
+  free(manager->recieve_notify);
+  pthread_mutex_destroy(manager->seqlock);
+  free(manager->seqlock);
+
   close(manager->fd);
   free(manager);
 }

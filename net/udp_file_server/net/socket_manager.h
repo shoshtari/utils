@@ -29,6 +29,8 @@ typedef struct socket_manager {
     pthread_mutex_t *seqlock;
 
     int fd;
+	int running;
+	pthread_t recvDaemonID;
 
 } socket_manager;
 
@@ -40,4 +42,5 @@ Packet *app_recv(socket_manager *manager);
 int run_recv_daemon(socket_manager *manager);
 void *run_recv_daemon_async(void *arg);
 void destroy_socket_manager(socket_manager *manager);
+void destroy_packet(Packet packet);
 #endif

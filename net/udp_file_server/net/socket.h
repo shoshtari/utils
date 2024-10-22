@@ -1,4 +1,5 @@
 
+
 #ifndef NET_SOCKET_INCLUDE
 #define NET_SOCKET_INCLUDE
 
@@ -10,8 +11,8 @@
 
 #include "pthread.h"
 
-#define MAX_RETRY 5
-#define RETRY_SLEEP 500000
+#define SEND_TIMEOUT 5000000
+#define RETRY_SLEEP 1000
 #define CONN_TEAR_DOWN_SLEEP 3
 
 int send_to_socket(int fd, char *data, int n, struct sockaddr_in *addr);

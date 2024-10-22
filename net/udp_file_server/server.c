@@ -49,6 +49,13 @@ char *gen_file_list(dir_files files, int limit, int offset) {
   return ans;
 }
 
+void* make_server_packet(void* buffer, int bufferSize, unsigned short clientSeqnumber){
+	void* newBuffer = malloc(bufferSize + 2);
+	memcpy(newBuffer, &clientSeqnumber, 2);
+	memcpy(newBuffer + 2, buffer, bufferSize);
+	return newBuffer;
+}
+
 void serve(dir_files files) {
   int recv_len;
 
@@ -64,6 +71,7 @@ void serve(dir_files files) {
       free(receivedPacket);
     }
     receivedPacket = app_recv(manager);
+	unsigned short clientSeq = *((unsigned short*)(receivedPacket->buffer + 1));
 
     char *buf = receivedPacket->buffer + PROTOCOL_OVERHEAD;
     char *command = strtok(buf, "-");
@@ -71,6 +79,7 @@ void serve(dir_files files) {
     char *text = "unknown command";
     if (strcmp(command, "ping") == 0) {
       text = "pong";
+      sendPacket = newPacket(receivedPacket->addr, text, strlen(text));
     } else if (strcmp(command, "list") == 0) {
       char *limitStr = strtok(NULL, "-");
       char *offsetStr = strtok(NULL, "-");
@@ -78,6 +87,7 @@ void serve(dir_files files) {
       int offset = atoi(offsetStr);
 
       text = gen_file_list(files, limit, offset);
+      sendPacket = newPacket(receivedPacket->addr, text, strlen(text));
     } else if (strcmp(command, "get") == 0) {
       int fileid = atoi(strtok(NULL, "-")), start = atoi(strtok(NULL, "-")),
           size = atoi(strtok(NULL, "-"));
@@ -86,19 +96,18 @@ void serve(dir_files files) {
 
       sendPacket = newPacket(receivedPacket->addr,
                              files.files[fileid].data + start, size);
-      app_send(manager, sendPacket);
-      destroy_packet(sendPacket);
-      continue;
     } else if (strcmp(command, "exit") == 0) {
       destroy_packet(*receivedPacket);
-	  free(receivedPacket);
+      free(receivedPacket);
       return;
     }
 
-    sendPacket = newPacket(receivedPacket->addr, text, strlen(text));
+	void* buffer = make_server_packet(sendPacket.buffer, sendPacket.size, clientSeq);
+	free(sendPacket.buffer);
+	sendPacket.buffer = buffer;
+	sendPacket.size += 2;
     app_send(manager, sendPacket);
     destroy_packet(sendPacket);
-    // free(text);
   }
 }
 
@@ -147,7 +156,8 @@ int main(int argc, char **argv) {
   print_files(files);
 
   manager = new_socket_manager(sockfd);
-  if (pthread_create(&manager->recvDaemonID, NULL, run_recv_daemon_async, (void *)manager) != 0) {
+  if (pthread_create(&manager->recvDaemonID, NULL, run_recv_daemon_async,
+                     (void *)manager) != 0) {
     perror("Failed to create thread");
     return 1;
   }

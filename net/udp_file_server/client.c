@@ -71,8 +71,12 @@ void *RecieveHandler(void *args) {
       printf("Empty packet recieved!\n");
       continue;
     }
+	if (packet->size < PROTOCOL_OVERHEAD + 2){
+		printf("packet size is need to be at least %d\n", PROTOCOL_OVERHEAD + 2);
+		continue;
+	}
 
-    unsigned short seqnumber = *((unsigned short *)(packet->buffer + 1));
+    unsigned short seqnumber = *((unsigned short *)(packet->buffer + 3));
     upsertHook(seqnumber, 1, packet->buffer, packet->size);
     free(packet->addr);
   }
@@ -117,8 +121,8 @@ int ping() {
   RecieveHookEntry entry = waitForRes(seqnumber);
 
   printf("Received reply: ");
-  try_print(entry.buffer + PROTOCOL_OVERHEAD,
-            entry.buffersize - PROTOCOL_OVERHEAD);
+  try_print(entry.buffer + PROTOCOL_OVERHEAD + 2,
+            entry.buffersize - PROTOCOL_OVERHEAD - 2);
   free(entry.buffer);
 
   return 0;
@@ -139,16 +143,9 @@ int list_files(dir_files *result) {
 
     RecieveHookEntry entry = waitForRes(seqnumber);
 
-    char *recievedData;
-    if (entry.buffersize > PROTOCOL_OVERHEAD) {
-      recievedData = entry.buffer + PROTOCOL_OVERHEAD;
-    } else {
-      recievedData = "";
-      break;
-    }
-
+    char *recievedData = entry.buffer + PROTOCOL_OVERHEAD + 2;
     printf("data  %hu recieved ", seqnumber);
-    try_print(recievedData, entry.buffersize - PROTOCOL_OVERHEAD);
+    try_print(recievedData, entry.buffersize - PROTOCOL_OVERHEAD - 2);
 
 
     if (strlen(recievedData) == 0) {
@@ -214,15 +211,16 @@ int get_file(dir_files files, int fileid) {
   printf("downloding %s %d\n", file.name, fileid);
   char *res = malloc(file.size);
   char *message = malloc(DG_MAXSIZE);
-  for (int i = 0; i < file.size; i += DG_MAXSIZE) {
-    int chunk_size = i + DG_MAXSIZE > file.size ? file.size - i : DG_MAXSIZE;
+  int chunksize = 50000;
+  for (int i = 0; i < file.size; i += chunksize) {
+    int chunk_size = i + chunksize > file.size ? file.size - i : chunksize;
     sprintf(message, "get-%d-%d-%d", fileid, i, chunk_size);
     unsigned short seqnumber =
         app_send(manager, newPacket(&server_address, message, strlen(message)));
 
     RecieveHookEntry entry = waitForRes(seqnumber);
 
-    memcpy(res + i, entry.buffer, chunk_size);
+    memcpy(res + i, entry.buffer + PROTOCOL_OVERHEAD  + 2, chunk_size);
   }
 
   printf("%s %d %d\n", file.name, file.size, fileid);
@@ -351,14 +349,16 @@ int op(int port) {
   printf("connection is ready!\n");
   // connection is ready
   dir_files files;
-  /*ping();*/
-  /*printf("######################### ping done ##################\n");*/
-  /*list_files(&files);*/
-  /*free_file(files);*/
-  /*list_files(&files);*/
-  /*print_files(files);*/
-  // get_file(files, 0);
-  // free_file(files);
+  ping();
+  printf("######################### ping done ##################\n");
+  list_files(&files);
+  free_file(files);
+  list_files(&files);
+  print_files(files);
+  printf("######################### list done ##################\n");
+  get_file(files, 0);
+  free_file(files);
+
   app_send(manager, newPacket(&server_address, "exit", 5));
 
   destroy_socket_manager(manager);

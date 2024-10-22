@@ -106,11 +106,7 @@ int send_and_wait_for_ack(socket_manager *manager, Packet packet,
 
   int count = 0;
   while (!ackReceived) {
-    if (count > 0) {
-      printf("send timeout reached for seq %d,hash: %d, retry count: %d \n",
-             seqnumber, ackmap_hash(key, ACKMAP_CARDINALITY), count);
-    }
-    if (count >= MAX_RETRY) {
+    if (count * RETRY_SLEEP >= SEND_TIMEOUT) {
       printf("couldn't send packet");
       exit(1);
       break;

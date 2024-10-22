@@ -48,7 +48,6 @@ char* gen_file_list(dir_files files, int limit, int offset) {
 }
 
 void serve(dir_files files) {
-    struct sockaddr_in client_addr;
     int recv_len;
 
     printf("serving %d files\n", files.filecounts);
@@ -56,11 +55,9 @@ void serve(dir_files files) {
     fflush(stdout);
 
     while (1) {
-        Packet* packet = app_recv(manager);
+        Packet* receivedPacket = app_recv(manager);
 
-        printf("received packet data: %s\n", packet->buffer);
-
-        char* buf = packet->buffer + PROTOCOL_OVERHEAD;
+        char* buf = receivedPacket->buffer + PROTOCOL_OVERHEAD;
         char* command = strtok(buf, "-");
 
         char* text = "unknown command";
@@ -78,15 +75,15 @@ void serve(dir_files files) {
             size = files.files[fileid].size < size ? files.files[fileid].size : size;
             printf("%d %d %d\n", fileid, start, size);
 
-            app_send(manager, newPacket(&client_addr, files.files[fileid].data + start, size));
+            app_send(manager, newPacket(receivedPacket->addr, files.files[fileid].data + start, size));
             continue;
         } else if (strcmp(command, "exit") == 0) {
             return;
         }
 
-        printf("sending %s %lu\n", text, strlen(text));
-        app_send(manager, newPacket(&client_addr, text, strlen(text)));
-        free(text);
+        printf("HOO %d\n", receivedPacket->addr);
+        app_send(manager, newPacket(receivedPacket->addr, text, strlen(text)));
+        // free(text);
     }
 }
 
@@ -129,30 +126,25 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
 
-    manager = new_socket_manager(sockfd);
+    dir_files files;
 
+    read_files(DIR_TO_SERVE, &files);
+    print_files(files);
+
+    manager = new_socket_manager(sockfd);
     pthread_t pid;
     if (pthread_create(&pid, NULL, run_recv_daemon_async, (void*)manager) != 0) {
         perror("Failed to create thread");
         return 1;
     }
-    sleep(1);
 
-    // server ready
     printf("Server listening on port %d\n", port);
-
-    dir_files files;
-
-    read_files(DIR_TO_SERVE, &files);
-    print_files(files);
-    // Listen for data
 
     serve(files);
 
     destroy_socket_manager(manager);
     free_file(files);
 
-    close(sockfd);
     printf("Bye\n");
     return 0;
 }

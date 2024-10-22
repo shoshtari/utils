@@ -16,7 +16,7 @@ uint32_t hash(void *data, int size, uint32_t cardinality) {
     return hash_value % cardinality;
 }
 
-hashmap *create_hashsmap(int hash_cardinality, int keysize, int valuesize) {
+hashmap *create_hashsmap(int hash_cardinality, int keysize, int valuesize, int (*compare)(void *, void *)) {
     hashmap *ans = malloc(sizeof(hashmap));
     ans->data = malloc(sizeof(linklist *) * hash_cardinality);
     memset(ans->data, 0, sizeof(linklist *) * hash_cardinality);
@@ -24,7 +24,7 @@ hashmap *create_hashsmap(int hash_cardinality, int keysize, int valuesize) {
     ans->hash_cardinality = hash_cardinality;
     ans->keysize = keysize;
     ans->valuesize = valuesize;
-
+    ans->compare = compare;
     return ans;
 }
 
@@ -51,7 +51,7 @@ void hashmap_set(hashmap *map, void *key, void *value) {
         hashmap_entry *cur_data = iterator->data;
 
         int k1 = *(int *)cur_data->key;
-        if (!memcmp(key, cur_data->key, map->keysize)) {
+        if (!map->compare(key, cur_data->key)) {
             int k1 = *(int *)cur_data->key;
             int k2 = *(int *)key;
 
@@ -64,6 +64,7 @@ void hashmap_set(hashmap *map, void *key, void *value) {
         }
         iterator = iterator->next;
     }
+    map->size++;
     rinsert_linklist(list, entry);
 
     free(entry);
@@ -71,6 +72,7 @@ void hashmap_set(hashmap *map, void *key, void *value) {
 
 void *hashmap_get(hashmap *map, void *key) {
     uint32_t h = hash(key, map->keysize, map->hash_cardinality);
+
     if (map->data[h] == NULL) {
         map->data[h] = create_linklist(sizeof(hashmap_entry));
         perror("hash not found to get");
@@ -83,7 +85,7 @@ void *hashmap_get(hashmap *map, void *key) {
     for (int i = 0; i < list->size; i++) {
         hashmap_entry *cur_data = iterator->data;
 
-        if (!memcmp(key, cur_data->key, map->keysize)) {
+        if (!map->compare(key, cur_data->key)) {
             return cur_data->value;
         }
         iterator = iterator->next;
@@ -106,8 +108,13 @@ void hashmap_del(hashmap *map, void *key) {
     for (int i = 0; i < list->size; i++) {
         hashmap_entry *cur_data = iterator->data;
 
-        if (!memcmp(key, cur_data->key, map->keysize)) {
+        if (!map->compare(key, cur_data->key)) {
             linklist_remove(list, iterator);
+            map->size--;
+            free(cur_data->key);
+            free(cur_data->value);
+            free(cur_data);
+
             return;
         }
         iterator = iterator->next;
@@ -135,23 +142,27 @@ void destroy_hashmap(hashmap *map) {
     free(map);
 }
 
-/*int main() {*/
-/**/
-/*  hashmap *map = create_hashsmap(10, sizeof(int), sizeof(int));*/
-/**/
-/*  int key, value;*/
-/*  int n = 100;*/
-/*  for (int i = 0; i < n; i++) {*/
-/*    int key = i, value = i * i;*/
-/*    hashmap_set(map, &key, &value);*/
-/*  }*/
-/*  for (int i = 0; i < n; i++) {*/
-/*    int key = i;*/
-/*    value = *(int*) hashmap_get(map, &key);*/
-/*	printf("%d %d\n", key, value);*/
-/*  }*/
-/**/
-/*  destroy_hashmap(map);*/
-/**/
-/*  return 0;*/
-/*}*/
+int cmp(void *a, void *b) {
+    return 0;
+}
+// int main() {
+//     hashmap *map = create_hashsmap(10, sizeof(int), sizeof(int), cmp);
+
+//     int n = 100;
+//     for (int i = 0; i < n; i++) {
+//         int k = i, v = i * i;
+//         hashmap_set(map, &k, &v);
+//     }
+
+//     for (int i = 0; i < n; i += 2) {
+//         int k = i;
+//         hashmap_del(map, &k);
+//     }
+//     for (int i = 1; i < n; i += 2) {
+//         int k = i;
+
+//         printf("%d %d\n", k, *(int *)hashmap_get(map, &k));
+//     }
+
+//     destroy_hashmap(map);
+// }

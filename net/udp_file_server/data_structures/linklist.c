@@ -49,8 +49,9 @@ void *rpop_linklist(linklist *list) {
 void *lpop_linklist(linklist *list) {
     lock_rwmutex(list->mutex);
 
-    if (list->size == 0) {
+    if (list->size == 0 || list->root == NULL) {
         perror("list is empty");
+        return NULL;
     }
 
     linklist_entry *oldroot = list->root;
@@ -63,6 +64,7 @@ void *lpop_linklist(linklist *list) {
     if (list->root != NULL) {
         list->root->before = NULL;
     }
+    list->size--;
 
     unlock_rwmutex(list->mutex);
 
@@ -79,13 +81,15 @@ void linklist_remove(linklist *list, linklist_entry *node) {
     }
 
     if (node == list->root) {
-        return;
-
         list->root = list->root->next;
-        list->root->before = NULL;
+        if (list->root != NULL) {
+            list->root->before = NULL;
+        }
     } else if (node == list->end) {
         list->end = list->end->before;
-        list->end->next = NULL;
+        if (list->end != NULL) {
+            list->end->next = NULL;
+        }
     } else {
         node->before->next = node->next;
         node->next->before = node->before;

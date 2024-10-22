@@ -239,9 +239,10 @@ int op(int port) {
     // print_files(files);
     // get_file(files, 0);
     // free_file(files);
+    ping();
     app_send(manager, newPacket(&server_address, "exit", 5));
-    // ping();
-    close(sockfd);
+
+    destroy_socket_manager(manager);
 
     printf("Bye!\n");
     return 0;

@@ -1,4 +1,5 @@
 #include "file_utils.h"
+#include <string.h>
 
 #define MAX_FILE_SIZE 32768000
 
@@ -44,10 +45,11 @@ int read_file(char *dir, char *name, fileinfo *res, int load_data) {
     if (read(fd, res->data, filestat.st_size + 1) != filestat.st_size) {
       perror("file size mismatch");
     }
-  res->hash = calculate_md5(res->data, res->size);
-  }
-  else{
-	  res->hash = "server lazy load is active, can't calculate md5";
+    res->hash = calculate_md5(res->data, res->size);
+  } else {
+    res->data = NULL;
+    res->hash = malloc(50);
+    strcpy(res->hash, "server lazy load is active, can't calculate md5");
   }
   free(path);
 
@@ -165,7 +167,10 @@ void free_file(dir_files files) {
     fileinfo file = files.files[i];
     free(file.name);
     free(file.hash);
-    free(file.data);
+
+    if (file.data != NULL) {
+      free(file.data);
+    }
     if (file.fd < 0) {
       close(file.fd);
     }

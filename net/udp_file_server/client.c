@@ -1,4 +1,3 @@
-
 #include "data_structures/hashmap.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -20,7 +19,7 @@
 #define TARGET_DIR "./files/"
 #define RESPONSE_TIMEOUT 5000000
 #define RESPONSE_WAIT_TIME 100000
-#define DOWNLOAD_POOL_SIZE 1
+#define DOWNLOAD_POOL_SIZE 2
 struct sockaddr_in server_address;
 unsigned int server_length = sizeof(struct sockaddr);
 socket_manager *manager;
@@ -157,10 +156,9 @@ int list_files(dir_files *result) {
     char *strtok_buf;
     char *file_entry = strtok_r(recievedData, ";", &strtok_buf);
 
-    while (file_entry != NULL) {
-      if (strlen(file_entry) == 0) {
-        file_entry = strtok_r(NULL, ";", &strtok_buf);
-        continue;
+    do {
+      if (file_entry == NULL || strlen(file_entry) == 0) {
+        break;
       }
 
       if (result->filecounts == capacity) {
@@ -188,12 +186,13 @@ int list_files(dir_files *result) {
       file.hash = malloc(strlen(parts) + 10);
       strcpy(file.hash, parts);
 
+      file.data = NULL;
       file.fd = -1;
       result->files[result->filecounts] = file;
       result->filecounts++;
 
       file_entry = strtok_r(NULL, ";", &strtok_buf);
-    }
+    } while (file_entry != NULL);
   }
   free(message);
   return 0;
@@ -209,9 +208,9 @@ typedef struct downloadChunkRequest {
 } downloadChunkRequest;
 
 void *downloadChunk(void *arg) {
-	printf("D\n");
-	sem_wait(&poolSemaphore);
+  sem_wait(&poolSemaphore);
   downloadChunkRequest req = *(downloadChunkRequest *)arg;
+  printf("DDDDDDDDDDDDDDDDDDDDDDDDDDD %d %d %d %d %s\n", req.fd, req.fileid, req.chunksize, req.offset, req.file.name);
 
   int chunk_size = req.offset + req.chunksize > req.file.size
                        ? req.file.size - req.offset
@@ -226,7 +225,7 @@ void *downloadChunk(void *arg) {
   write_chunk(req.fd, entry.buffer + PROTOCOL_OVERHEAD + 2,
               entry.buffersize - PROTOCOL_OVERHEAD - 2, req.offset);
 
-	sem_post(&poolSemaphore);
+  sem_post(&poolSemaphore);
   return NULL;
 }
 int get_file(dir_files files, int fileid) {
@@ -253,25 +252,29 @@ int get_file(dir_files files, int fileid) {
   pthread_t thread_ids[file.size / chunksize + 1];
   int threadCount = 0;
   for (int i = 0; i < file.size; i += chunksize) {
-    downloadChunkRequest req;
-    req.offset = i;
-    req.fileid = fileid;
-    req.chunksize = chunksize;
-    req.file = file;
-    req.fd = fd;
-    if (pthread_create(&thread_ids[threadCount], NULL, RecieveHandler,
-                       &req) != 0) {
+    downloadChunkRequest* req = malloc(sizeof(downloadChunkRequest));
+    req->offset = i;
+    req->fileid = fileid;
+    req->chunksize = chunksize;
+    req->file = file;
+    req->fd = fd;
+
+	/*downloadChunk(req);*/
+	/* }*/
+    if (pthread_create(&thread_ids[threadCount], NULL, downloadChunk, req) !=
+        0) {
       printf("Failed to create thread");
       return 1;
     }
-	threadCount++;
+    threadCount++;
   }
-  for(int i = 0; i<threadCount; i++){
-	pthread_join(thread_ids[i], NULL);
-  }	
+  for (int i = 0; i < threadCount; i++) {
+    pthread_join(thread_ids[i], NULL);
+  }
 
   free(message);
   free(target_file);
+  close(fd);
   printf("file %s downloaded\n", file.name);
 
   return 0;
@@ -382,7 +385,6 @@ int op(int port) {
     usleep(10000);
   }
 
-
   sem_init(&poolSemaphore, 1, DOWNLOAD_POOL_SIZE);
 
   printf("connection is ready!\n");
@@ -396,7 +398,7 @@ int op(int port) {
   print_files(files);
   printf("######################### list done ##################\n");
 
-  /*get_file(files, 0);*/
+  get_file(files, 0);
   free_file(files);
 
   app_send(manager, newPacket(&server_address, "exit", 5));

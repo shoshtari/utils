@@ -90,6 +90,7 @@ void serve(dir_files files) {
 
       text = gen_file_list(files, limit, offset);
       sendPacket = newPacket(receivedPacket->addr, text, strlen(text));
+	  free(text);
     } else if (strcmp(command, "get") == 0) {
       int fileid = atoi(strtok(NULL, "-")), start = atoi(strtok(NULL, "-")),
           size = atoi(strtok(NULL, "-"));

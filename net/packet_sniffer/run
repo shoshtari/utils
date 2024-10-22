@@ -1,0 +1,36 @@
+#!/usr/bin/bash 
+
+filename=sniff
+
+
+filepath="$filename.c"
+build_path="/tmp/$filename_$RANDOM"
+md5=""
+
+function kill_process(){
+	pid=$(ps -aux | grep $build_path | grep -v grep | awk '{print $2}')
+	if [[ -n $pid ]]; then 
+		kill $pid 
+	fi 
+}
+
+function exit_handler(){
+	kill_process
+	rm $build_path
+	exit 0
+}
+
+trap 'exit_handler' SIGINT
+
+while [ true ]; do 
+	new_md5=$(cat $(find . -name "*.h" -o -name "*.c") | md5sum  | awk '{print $1}')
+	if [[ $md5 != $new_md5 ]]; then 
+		echo "change detected, rebuild..."
+		gcc -lcrypto -o $build_path $filepath conv.c udp.c tcp.c icmp.c md5.c
+		kill_process
+
+		$build_path &
+	fi 
+	md5=$new_md5 
+	sleep 0.1
+done 

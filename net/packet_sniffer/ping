@@ -1,0 +1,15 @@
+#!/home/morteza/hobby/net/venv/bin/python
+from scapy.all import IP, ICMP, send
+import time 
+
+# Define the target IP
+target_ip = "127.0.0.1"  # Change this to your target IP
+
+# Craft the ping (ICMP) packet with a custom payload
+custom_payload = b"Hello, this is a custom payload!\0"
+packet = IP(dst=target_ip)/ICMP()/custom_payload
+
+# Send the packet
+while True:
+    send(packet)
+    time.sleep(1)

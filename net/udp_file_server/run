@@ -1,0 +1,44 @@
+#!/usr/bin/bash 
+
+filename=$1 
+port=8082
+
+
+filepath="$filename.c"
+build_path="/tmp/$filename_$RANDOM"
+md5=""
+
+function kill_process(){
+	pid=$(ps -aux | grep $build_path | grep -v grep | awk '{print $2}')
+	if [[ -n $pid ]]; then 
+		kill $pid 
+	fi 
+}
+
+function exit_handler(){
+	kill_process
+	rm $build_path
+	exit 0
+}
+
+trap 'exit_handler' SIGINT
+
+while [ true ]; do 
+	new_md5=$(cat $(find . -name "*.h" -o -name "*.c") | md5sum  | awk '{print $1}')
+	if [[ $md5 != $new_md5 ]]; then 
+		clear
+		echo "change detected, rebuild..."
+		gcc -lcrypto -o $build_path $filepath md5.c file_utils.c table.c net/socket_manager.c net/socket.c data_structures/linklist.c data_structures/hashmap.c data_structures/rwmutex.c
+		kill_process
+
+		# $build_path $port &
+		valgrind --leak-check=full \
+         --show-leak-kinds=all \
+         --track-origins=yes \
+         --verbose \
+         --log-file=valgrind-$filename.txt \
+		 $build_path $port &
+	fi 
+	md5=$new_md5 
+	sleep 0.1
+done 

@@ -40,7 +40,7 @@ while [ true ]; do
 		valgrind --leak-check=full \
          --show-leak-kinds=all \
          --track-origins=yes \
-         # --verbose \
+         --verbose \
          --log-file=valgrind-$filename.txt \
 		 $build_path $port &
 	fi 

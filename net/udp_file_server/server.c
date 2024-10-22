@@ -51,11 +51,12 @@ char *gen_file_list(dir_files files, int limit, int offset) {
   return ans;
 }
 
-void* make_server_packet(void* buffer, int bufferSize, unsigned short clientSeqnumber){
-	void* newBuffer = malloc(bufferSize + 2);
-	memcpy(newBuffer, &clientSeqnumber, 2);
-	memcpy(newBuffer + 2, buffer, bufferSize);
-	return newBuffer;
+void *make_server_packet(void *buffer, int bufferSize,
+                         unsigned short clientSeqnumber) {
+  void *newBuffer = malloc(bufferSize + 2);
+  memcpy(newBuffer, &clientSeqnumber, 2);
+  memcpy(newBuffer + 2, buffer, bufferSize);
+  return newBuffer;
 }
 
 void serve(dir_files files) {
@@ -73,7 +74,8 @@ void serve(dir_files files) {
       free(receivedPacket);
     }
     receivedPacket = app_recv(manager);
-	unsigned short clientSeq = *((unsigned short*)(receivedPacket->buffer + 1));
+    unsigned short clientSeq =
+        *((unsigned short *)(receivedPacket->buffer + 1));
 
     char *buf = receivedPacket->buffer + PROTOCOL_OVERHEAD;
     char *command = strtok(buf, "-");
@@ -89,35 +91,54 @@ void serve(dir_files files) {
       int offset = atoi(offsetStr);
 
       text = gen_file_list(files, limit, offset);
-      sendPacket = newPacket(receivedPacket->addr, text, strlen(text));
-	  free(text);
+      sendPacket = newPacket(receivedPacket->addr, text, strlen(text) + 1);
+      free(text);
     } else if (strcmp(command, "get") == 0) {
-      int fileid = atoi(strtok(NULL, "-")), start = atoi(strtok(NULL, "-")),
-          size = atoi(strtok(NULL, "-"));
+
+      char *tok = strtok(NULL, "-");
+      if (tok == NULL) {
+        printf("invalid command\n");
+        exit(1);
+      }
+      int fileid = atoi(tok);
+
+      tok = strtok(NULL, "-");
+      if (tok == NULL) {
+        printf("invalid command\n");
+        exit(1);
+      }
+      int start = atoi(tok);
+
+      tok = strtok(NULL, "-");
+      if (tok == NULL) {
+        printf("invalid command\n");
+        exit(1);
+      }
+      int size = atoi(tok);
+
       size = files.files[fileid].size < size ? files.files[fileid].size : size;
 
       printf("download file: %d from: %d size: %d\n", fileid, start, size);
 
-	  char* chunk;
-	  if (!LAZY_LOAD){
-		  chunk = files.files[fileid].data + start;
-	  } else {
-		  chunk = malloc(size);
-		  read_chunk(files.files[fileid].fd, chunk, size, start);
-
-	  }
-      sendPacket = newPacket(receivedPacket->addr,
-                             chunk, size);
+      char *chunk;
+      if (!LAZY_LOAD) {
+        chunk = files.files[fileid].data + start;
+      } else {
+        chunk = malloc(size);
+        read_chunk(files.files[fileid].fd, chunk, size, start);
+      }
+      sendPacket = newPacket(receivedPacket->addr, chunk, size);
     } else if (strcmp(command, "exit") == 0) {
       destroy_packet(*receivedPacket);
       free(receivedPacket);
       return;
     }
 
-	void* buffer = make_server_packet(sendPacket.buffer, sendPacket.size, clientSeq);
-	free(sendPacket.buffer);
-	sendPacket.buffer = buffer;
-	sendPacket.size += 2;
+    void *buffer =
+        make_server_packet(sendPacket.buffer, sendPacket.size, clientSeq);
+    free(sendPacket.buffer);
+    sendPacket.buffer = buffer;
+    sendPacket.size += 2;
     app_send(manager, sendPacket);
     destroy_packet(sendPacket);
   }

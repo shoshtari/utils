@@ -5,9 +5,9 @@ int send_to_socket(int fd, char *data, int n, struct sockaddr_in *addr) {
   socklen_t addr_len = sizeof(*addr);
 
   if (sendto(fd, data, n, 0, addr_to_use, addr_len) == -1) {
-    return -1;
     perror("WARN couldn't send data to socket, retrying...");
     usleep(RETRY_SLEEP);
+    return -1;
   }
   return 0;
 }

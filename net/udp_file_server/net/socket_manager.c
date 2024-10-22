@@ -105,23 +105,32 @@ int send_and_wait_for_ack(socket_manager *manager, Packet packet,
   }
 
   int count = 0;
+  int count2 = 0;
   while (!ackReceived) {
     if (count * RETRY_SLEEP >= SEND_TIMEOUT) {
-      printf("couldn't send packet");
+      printf("timeout reached, couldn't send packet");
       exit(1);
       break;
     }
-    if (send_to_socket(manager->fd, packet.buffer, packet.size, packet.addr) <
-        0) {
-      printf("couldn't send data to socket");
-      exit(1);
-      break;
-    }
+	if (count2 * RETRY_SLEEP > CHECK_SLEEP){
+		if (send_to_socket(manager->fd, packet.buffer, packet.size, packet.addr) <
+			0) {
+		  printf("couldn't send data to socket");
+		  exit(1);
+		  break;
+		}
+		count2 = 0;
+	}
 
     count++;
+	count2++;
+	if(DISABLE_ACK){
+		return 0;
+	}
+
 	void* mapValue = hashmap_get(manager->ack_map, key);
 	if (mapValue == NULL){
-		printf("hashamp sucks!\n");
+		printf("###################################### hashamp sucks!\n");
 		return -1;
 	}
     ackReceived = *((int *)mapValue);
@@ -135,6 +144,9 @@ int send_and_wait_for_ack(socket_manager *manager, Packet packet,
 
 int send_ack(socket_manager *manager, char *received_buf,
              struct sockaddr_in *addr) {
+	if (DISABLE_ACK){
+		return 0;
+	}
 
   unsigned short seqnumber = *((unsigned short *)(received_buf + 1));
   char *buf = malloc(PROTOCOL_OVERHEAD);
@@ -161,6 +173,9 @@ int handle_recieved_app_packet(socket_manager *manager, Packet packet) {
 }
 int handle_recieved_ack_packet(socket_manager *manager, Packet packet) {
 
+	if (DISABLE_ACK){
+		return 0;
+	}
   ackmap_key *key = calloc(sizeof(ackmap_key), 1);
   key->addr = *packet.addr;
   key->seqnumber = *((unsigned short *)(packet.buffer + 1));

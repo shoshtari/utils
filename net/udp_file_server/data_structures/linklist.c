@@ -128,24 +128,25 @@ void destroy_linklist(linklist *list) {
     free(list);
 }
 
-// int main() {
-//     linklist* list = create_linklist(sizeof(int));
-//     int n = 12;
-//     for (int i = 0; i < n; i++) {
-//         insert_linklist(list, &i);
-//     }
-//     for (int i = 0; i < n / 2; i++) {
-//         if (i % 2 == 0) {
-//             free(pop_linklist(list));
-//         } else {
-//             free(rpop_linklist(list));
-//         }
-//     }
-
-//     linklist_entry* cur = list->root;
-//     while (cur != NULL) {
-//         printf("%d\n", *(int*)cur->data);
-//         cur = cur->next;
-//     }
-//     destroy_linklist(list);
-// }
+ /*int main() {*/
+ /*    linklist* list = create_linklist(sizeof(int));*/
+ /*    int n = 1<<20;*/
+ /*    for (int i = 0; i < n; i++) {*/
+ /*        rinsert_linklist(list, &i);*/
+ /*    }*/
+ /*    for (int i = 0; i < n / 2; i++) {*/
+ /*        if (i % 2 == 0) {*/
+ /*            free(lpop_linklist(list));*/
+ /*        } else {*/
+ /*            free(rpop_linklist(list));*/
+ /*        }*/
+ /*    }*/
+ /**/
+ /*    linklist_entry* cur = list->root;*/
+ /*    while (cur != NULL) {*/
+ /*	 int a = *(int*)cur->data;*/
+ /*        // printf("%d\n", a);*/
+ /*        cur = cur->next;*/
+ /*    }*/
+ /*    destroy_linklist(list);*/
+ /*}*/

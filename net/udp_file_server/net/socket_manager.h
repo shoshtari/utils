@@ -9,9 +9,10 @@
 #include "../data_structures/linklist.h"
 #include "pthread.h"
 
-#define ACKMAP_CARDINALITY 1024
+#define ACKMAP_CARDINALITY 1 << 20
 #define PROTOCOL_OVERHEAD 3
-#define DG_MAXSIZE 60000
+#define DG_MAXSIZE 62000
+#define DISABLE_ACK 0
 
 typedef struct Packet {
     uint32_t size;

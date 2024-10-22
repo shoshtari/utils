@@ -26,7 +26,7 @@ typedef struct linklist {
 linklist *create_linklist(int valueSize);
 void rinsert_linklist(linklist *list, void *value);
 void* lpop_linklist(linklist* list) ;
-void* rpop_linklist(linklist* list);
+// void* rpop_linklist(linklist* list);
 void linklist_remove(linklist* list, linklist_entry* node);
 void destroy_linklist(linklist *list);
 void block_get(linklist *list);

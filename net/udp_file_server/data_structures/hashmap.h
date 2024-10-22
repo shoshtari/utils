@@ -15,9 +15,10 @@ typedef struct hashmap {
     int size, hash_cardinality, keysize, valuesize;
 
     int (*compare)(void *, void *);
+    uint32_t (*hash)(void *buffer, int hash_cardinality);
 } hashmap;
 
-hashmap *create_hashsmap(int hash_cardinality, int keysize, int valuesize, int (*compare)(void *, void *));
+hashmap *create_hashsmap(int hash_cardinality, int keysize, int valuesize, int (*compare)(void *, void *), uint32_t(*hash)(void* buffer, int hash_cardinality));
 void hashmap_set(hashmap *map, void *key, void *value);
 void *hashmap_get(hashmap *map, void *key);
 void hashmap_del(hashmap *map, void *key);

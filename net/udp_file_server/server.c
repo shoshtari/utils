@@ -12,7 +12,7 @@
 #include "net/socket_manager.h"
 #include "table.h"
 
-#define DIR_TO_SERVE "/home/mpc/Pictures/Wallpapers"
+#define DIR_TO_SERVE "/home/morteza/Pictures/wallpapers"
 
 socket_manager* manager;
 
@@ -81,7 +81,6 @@ void serve(dir_files files) {
             return;
         }
 
-        printf("HOO %d\n", receivedPacket->addr);
         app_send(manager, newPacket(receivedPacket->addr, text, strlen(text)));
         // free(text);
     }

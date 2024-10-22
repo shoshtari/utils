@@ -2,21 +2,7 @@
 
 #include "linklist.h"
 
-uint32_t hash(void *data, int size, uint32_t cardinality) {
-    const uint32_t base = 31;
-    const uint32_t prime = 1e9 + 9;
-    uint32_t hash_value = 0;
-
-    unsigned char *byte_data = (unsigned char *)data;
-
-    for (int i = 0; i < size; i++) {
-        hash_value = (hash_value * base + byte_data[i]) % prime;
-    }
-
-    return hash_value % cardinality;
-}
-
-hashmap *create_hashsmap(int hash_cardinality, int keysize, int valuesize, int (*compare)(void *, void *)) {
+hashmap *create_hashsmap(int hash_cardinality, int keysize, int valuesize, int (*compare)(void *, void *), uint32_t(*hash)(void*, int)) {
     hashmap *ans = malloc(sizeof(hashmap));
     ans->data = malloc(sizeof(linklist *) * hash_cardinality);
     memset(ans->data, 0, sizeof(linklist *) * hash_cardinality);
@@ -25,11 +11,12 @@ hashmap *create_hashsmap(int hash_cardinality, int keysize, int valuesize, int (
     ans->keysize = keysize;
     ans->valuesize = valuesize;
     ans->compare = compare;
+	ans->hash = hash;
     return ans;
 }
 
 void hashmap_set(hashmap *map, void *key, void *value) {
-    uint32_t h = hash(key, map->keysize, map->hash_cardinality);
+    uint32_t h = map->hash(key, map->hash_cardinality);
     if (map->data[h] == NULL) {
         map->data[h] = create_linklist(sizeof(hashmap_entry));
     }
@@ -71,11 +58,11 @@ void hashmap_set(hashmap *map, void *key, void *value) {
 }
 
 void *hashmap_get(hashmap *map, void *key) {
-    uint32_t h = hash(key, map->keysize, map->hash_cardinality);
+    uint32_t h = map->hash(key, map->hash_cardinality);
 
     if (map->data[h] == NULL) {
         map->data[h] = create_linklist(sizeof(hashmap_entry));
-        perror("hash not found to get");
+        printf("hash %d not found to get\n", h);
         return NULL;
     }
 
@@ -96,7 +83,7 @@ void *hashmap_get(hashmap *map, void *key) {
 }
 
 void hashmap_del(hashmap *map, void *key) {
-    uint32_t h = hash(key, map->keysize, map->hash_cardinality);
+    uint32_t h = map->hash(key, map->hash_cardinality);
     if (map->data[h] == NULL) {
         perror("hash not found to delete");
         return;

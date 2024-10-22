@@ -58,6 +58,10 @@ int read_chunk(int fd, char *data, int length, int offset) {
   return pread(fd, data, length, offset);
 }
 
+int write_chunk(int fd, char *data, int length, int offset) {
+  return pwrite(fd, data, length, offset);
+}
+
 int read_files(char *dir_path, dir_files *result, int load_data) {
   DIR *dr = opendir(dir_path);
 

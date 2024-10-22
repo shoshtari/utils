@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <pthread.h>
+#include <semaphore.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,11 +20,12 @@
 #define TARGET_DIR "./files/"
 #define RESPONSE_TIMEOUT 5000000
 #define RESPONSE_WAIT_TIME 100000
-
+#define DOWNLOAD_POOL_SIZE 1
 struct sockaddr_in server_address;
 unsigned int server_length = sizeof(struct sockaddr);
 socket_manager *manager;
 
+sem_t poolSemaphore;
 typedef struct RecieveHookEntry {
   int ready;
   void *buffer;
@@ -72,10 +74,10 @@ void *RecieveHandler(void *args) {
       printf("Empty packet recieved!\n");
       continue;
     }
-	if (packet->size < PROTOCOL_OVERHEAD + 2){
-		printf("packet size is need to be at least %d\n", PROTOCOL_OVERHEAD + 2);
-		continue;
-	}
+    if (packet->size < PROTOCOL_OVERHEAD + 2) {
+      printf("packet size is need to be at least %d\n", PROTOCOL_OVERHEAD + 2);
+      continue;
+    }
 
     unsigned short seqnumber = *((unsigned short *)(packet->buffer + 3));
     upsertHook(seqnumber, 1, packet->buffer, packet->size);
@@ -148,7 +150,6 @@ int list_files(dir_files *result) {
     printf("data  %hu recieved ", seqnumber);
     try_print(recievedData, entry.buffersize - PROTOCOL_OVERHEAD - 2);
 
-
     if (strlen(recievedData) == 0) {
       break;
     }
@@ -182,7 +183,6 @@ int list_files(dir_files *result) {
 
       parts = strtok(NULL, "@"); // filesize
       file.size = atoi(parts);
-      file.data = malloc(file.size);
 
       parts = strtok(NULL, "@"); // filehash
       file.hash = malloc(strlen(parts) + 10);
@@ -199,6 +199,36 @@ int list_files(dir_files *result) {
   return 0;
 }
 
+typedef struct downloadChunkRequest {
+  int chunksize;
+  int offset;
+  int fileid;
+  fileinfo file;
+  int fd;
+
+} downloadChunkRequest;
+
+void *downloadChunk(void *arg) {
+	printf("D\n");
+	sem_wait(&poolSemaphore);
+  downloadChunkRequest req = *(downloadChunkRequest *)arg;
+
+  int chunk_size = req.offset + req.chunksize > req.file.size
+                       ? req.file.size - req.offset
+                       : req.chunksize;
+  char *message = malloc(DG_MAXSIZE);
+  sprintf(message, "get-%d-%d-%d", req.fileid, req.offset, chunk_size);
+  unsigned short seqnumber =
+      app_send(manager, newPacket(&server_address, message, strlen(message)));
+
+  RecieveHookEntry entry = waitForRes(seqnumber);
+
+  write_chunk(req.fd, entry.buffer + PROTOCOL_OVERHEAD + 2,
+              entry.buffersize - PROTOCOL_OVERHEAD - 2, req.offset);
+
+	sem_post(&poolSemaphore);
+  return NULL;
+}
 int get_file(dir_files files, int fileid) {
   if (files.filecounts == 0) {
     printf("file list is empty, getting list\n");
@@ -210,33 +240,38 @@ int get_file(dir_files files, int fileid) {
 
   fileinfo file = files.files[fileid];
   printf("downloding %s %d\n", file.name, fileid);
-  char *res = malloc(file.size);
-  char *message = malloc(DG_MAXSIZE);
-  int chunksize = 50000;
-  for (int i = 0; i < file.size; i += chunksize) {
-    int chunk_size = i + chunksize > file.size ? file.size - i : chunksize;
-    sprintf(message, "get-%d-%d-%d", fileid, i, chunk_size);
-    unsigned short seqnumber =
-        app_send(manager, newPacket(&server_address, message, strlen(message)));
 
-    RecieveHookEntry entry = waitForRes(seqnumber);
-
-    memcpy(res + i, entry.buffer + PROTOCOL_OVERHEAD  + 2, chunk_size);
-  }
-
-  printf("%s %d %d\n", file.name, file.size, fileid);
   char *target_file = (char *)malloc(FILENAME_MAX);
   strcpy(target_file, TARGET_DIR);
   strcat(target_file, file.name);
 
-  if (write_to_file(target_file, res, file.size) < 0) {
-    printf("couldn't write to file");
-    return -1;
-  };
+  int fd = open(target_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+  char *message = malloc(DG_MAXSIZE);
+  int chunksize = 50000;
+
+  pthread_t thread_ids[file.size / chunksize + 1];
+  int threadCount = 0;
+  for (int i = 0; i < file.size; i += chunksize) {
+    downloadChunkRequest req;
+    req.offset = i;
+    req.fileid = fileid;
+    req.chunksize = chunksize;
+    req.file = file;
+    req.fd = fd;
+    if (pthread_create(&thread_ids[threadCount], NULL, RecieveHandler,
+                       &req) != 0) {
+      printf("Failed to create thread");
+      return 1;
+    }
+	threadCount++;
+  }
+  for(int i = 0; i<threadCount; i++){
+	pthread_join(thread_ids[i], NULL);
+  }	
 
   free(message);
   free(target_file);
-  free(res);
   printf("file %s downloaded\n", file.name);
 
   return 0;
@@ -347,6 +382,9 @@ int op(int port) {
     usleep(10000);
   }
 
+
+  sem_init(&poolSemaphore, 1, DOWNLOAD_POOL_SIZE);
+
   printf("connection is ready!\n");
   // connection is ready
   dir_files files;
@@ -357,7 +395,8 @@ int op(int port) {
   list_files(&files);
   print_files(files);
   printf("######################### list done ##################\n");
-  get_file(files, 0);
+
+  /*get_file(files, 0);*/
   free_file(files);
 
   app_send(manager, newPacket(&server_address, "exit", 5));

@@ -181,7 +181,7 @@ int handle_recieved_ack_packet(socket_manager *manager, Packet packet) {
 
 unsigned short app_send(socket_manager *manager, Packet packet) {
   if (packet.size + PROTOCOL_OVERHEAD > DG_MAXSIZE) {
-    printf("packet too big");
+    printf("packet with size %d is too big", packet.size);
     return 0;
   }
 
@@ -223,6 +223,8 @@ Packet *app_recv(socket_manager *manager) {
 int run_recv_daemon(socket_manager *manager) {
   char buf[DG_MAXSIZE];
   struct sockaddr_in client_addr;
+
+
 
   while (1) {
     int recv_len = recv_from_socket(manager->fd, buf, DG_MAXSIZE, &client_addr);

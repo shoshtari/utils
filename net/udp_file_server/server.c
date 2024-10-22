@@ -13,6 +13,7 @@
 #include "print_utils.h"
 
 #define DIR_TO_SERVE "/home/morteza/Pictures/wallpapers"
+#define LAZY_LOAD 1
 
 socket_manager *manager;
 
@@ -92,10 +93,19 @@ void serve(dir_files files) {
       int fileid = atoi(strtok(NULL, "-")), start = atoi(strtok(NULL, "-")),
           size = atoi(strtok(NULL, "-"));
       size = files.files[fileid].size < size ? files.files[fileid].size : size;
-      printf("%d %d %d\n", fileid, start, size);
 
+      printf("download file: %d from: %d size: %d\n", fileid, start, size);
+
+	  char* chunk;
+	  if (!LAZY_LOAD){
+		  chunk = files.files[fileid].data + start;
+	  } else {
+		  chunk = malloc(size);
+		  read_chunk(files.files[fileid].fd, chunk, size, start);
+
+	  }
       sendPacket = newPacket(receivedPacket->addr,
-                             files.files[fileid].data + start, size);
+                             chunk, size);
     } else if (strcmp(command, "exit") == 0) {
       destroy_packet(*receivedPacket);
       free(receivedPacket);
@@ -152,7 +162,7 @@ int main(int argc, char **argv) {
 
   dir_files files;
 
-  read_files(DIR_TO_SERVE, &files);
+  read_files(DIR_TO_SERVE, &files, !LAZY_LOAD);
   print_files(files);
 
   manager = new_socket_manager(sockfd);

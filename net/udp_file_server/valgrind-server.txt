@@ -1,404 +1,300 @@
-==1455071== Memcheck, a memory error detector
-==1455071== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.
-==1455071== Using Valgrind-3.23.0-c54d316124-20240426 and LibVEX; rerun with -h for copyright info
-==1455071== Command: /tmp/13313 8082
-==1455071== Parent PID: 1431834
-==1455071== 
---1455071-- 
---1455071-- Valgrind options:
---1455071--    --leak-check=full
---1455071--    --show-leak-kinds=all
---1455071--    --track-origins=yes
---1455071--    --verbose
---1455071--    --log-file=valgrind-server.txt
---1455071-- Contents of /proc/version:
---1455071--   Linux version 6.11.4-arch2-1 (linux@archlinux) (gcc (GCC) 14.2.1 20240910, GNU ld (GNU Binutils) 2.43.0) #1 SMP PREEMPT_DYNAMIC Sun, 20 Oct 2024 18:20:12 +0000
---1455071-- 
---1455071-- Arch and hwcaps: AMD64, LittleEndian, amd64-cx16-lzcnt-rdtscp-sse3-ssse3-avx-avx2-bmi-f16c-rdrand-rdseed-fma
---1455071-- Page sizes: currently 4096, max supported 4096
---1455071-- Valgrind library directory: /usr/lib/valgrind
---1455071-- Reading syms from /tmp/13313
---1455071-- Reading syms from /usr/lib/ld-linux-x86-64.so.2
-==1455071== Downloading debug info for /usr/lib/ld-linux-x86-64.so.2...
---1455071--   Considering /home/morteza/.cache/debuginfod_client/1eb3b3e47bd3d9034ef4bd4ede577a26bcc6dcc6/debuginfo ..
---1455071--   .. CRC is valid
-==1455071== Successfully downloaded debug file for /usr/lib/ld-linux-x86-64.so.2
---1455071-- Reading syms from /usr/lib/valgrind/memcheck-amd64-linux
---1455071--    object doesn't have a dynamic symbol table
---1455071-- Scheduler: using generic scheduler lock implementation.
---1455071-- Reading suppressions file: /usr/lib/valgrind/default.supp
-==1455071== embedded gdbserver: reading from /tmp/vgdb-pipe-from-vgdb-to-1455071-by-morteza-on-???
-==1455071== embedded gdbserver: writing to   /tmp/vgdb-pipe-to-vgdb-from-1455071-by-morteza-on-???
-==1455071== embedded gdbserver: shared mem   /tmp/vgdb-pipe-shared-mem-vgdb-1455071-by-morteza-on-???
-==1455071== 
-==1455071== TO CONTROL THIS PROCESS USING vgdb (which you probably
-==1455071== don't want to do, unless you know exactly what you're doing,
-==1455071== or are doing some strange experiment):
-==1455071==   /usr/lib/valgrind/../../bin/vgdb --pid=1455071 ...command...
-==1455071== 
-==1455071== TO DEBUG THIS PROCESS USING GDB: start GDB like this
-==1455071==   /path/to/gdb /tmp/13313
-==1455071== and then give GDB the following command
-==1455071==   target remote | /usr/lib/valgrind/../../bin/vgdb --pid=1455071
-==1455071== --pid is optional if only one valgrind process is running
-==1455071== 
-==1455071== Downloading debug info for /usr/lib/valgrind/memcheck-amd64-linux...
---1455071--   Considering /home/morteza/.cache/debuginfod_client/4d2d511b631f05d8d4ca87b5d6cbe5816ee8c7cf/debuginfo ..
---1455071--   .. CRC is valid
-==1455071== Successfully downloaded debug file for /usr/lib/valgrind/memcheck-amd64-linux
---1455071-- Warning: cross-CU LIMITATION: some inlined fn names
---1455071-- might be shown as UnknownInlinedFun
---1455071-- REDIR: 0x40270e0 (ld-linux-x86-64.so.2:strlen) redirected to 0x5821c154 (vgPlain_amd64_linux_REDIR_FOR_strlen)
---1455071-- REDIR: 0x4025aa0 (ld-linux-x86-64.so.2:strcmp) redirected to 0x5821c16e (vgPlain_amd64_linux_REDIR_FOR_strcmp)
---1455071-- REDIR: 0x4025870 (ld-linux-x86-64.so.2:index) redirected to 0x5821c189 (vgPlain_amd64_linux_REDIR_FOR_index)
---1455071-- Reading syms from /usr/lib/valgrind/vgpreload_core-amd64-linux.so
---1455071-- Reading syms from /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so
-==1455071== WARNING: new redirection conflicts with existing -- ignoring it
---1455071--     old: 0x04025aa0 (strcmp              ) R-> (0000.0) 0x5821c16e vgPlain_amd64_linux_REDIR_FOR_strcmp
-==1455071== Downloading debug info for /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so...
---1455071--   Considering /home/morteza/.cache/debuginfod_client/f70c4c5c28cf3c78e2c902057189c62680dab783/debuginfo ..
---1455071--   .. CRC is valid
-==1455071== Successfully downloaded debug file for /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so
---1455071--     new: 0x04025aa0 (strcmp              ) R-> (2016.0) 0x0484ef10 strcmp
-==1455071== WARNING: new redirection conflicts with existing -- ignoring it
---1455071--     old: 0x040270e0 (strlen              ) R-> (0000.0) 0x5821c154 vgPlain_amd64_linux_REDIR_FOR_strlen
---1455071--     new: 0x040270e0 (strlen              ) R-> (2007.0) 0x0484db80 strlen
---1455071-- REDIR: 0x4024ed0 (ld-linux-x86-64.so.2:mempcpy) redirected to 0x4853660 (mempcpy)
---1455071-- Reading syms from /usr/lib/libcrypto.so.3
---1455071-- Reading syms from /usr/lib/libc.so.6
-==1455071== Downloading debug info for /usr/lib/libc.so.6...
---1455071--   Considering /home/morteza/.cache/debuginfod_client/98b3d8e0b8c534c769cb871c438b4f8f3a8e4bf3/debuginfo ..
---1455071--   .. CRC is valid
-==1455071== Successfully downloaded debug file for /usr/lib/libc.so.6
---1455071-- REDIR: 0x4027280 (ld-linux-x86-64.so.2:strncmp) redirected to 0x484e680 (strncmp)
-==1455071== Downloading debug info for /usr/lib/valgrind/vgpreload_core-amd64-linux.so...
---1455071--   Considering /home/morteza/.cache/debuginfod_client/9ed1c3d295eaf28d9c2cf4c3a6480938496dcc90/debuginfo ..
---1455071--   .. CRC is valid
-==1455071== Successfully downloaded debug file for /usr/lib/valgrind/vgpreload_core-amd64-linux.so
---1455071-- REDIR: 0x4e0a710 (libc.so.6:strncasecmp) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e07860 (libc.so.6:mempcpy) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e1e010 (libc.so.6:wcpncpy) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e07bc0 (libc.so.6:stpcpy) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e84060 (libc.so.6:__memmove_chk) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e2c880 (libc.so.6:wmemcmp) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e08890 (libc.so.6:strcat) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e06eb0 (libc.so.6:memcpy@@GLIBC_2.14) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e1fec0 (libc.so.6:wcsncpy) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e83f40 (libc.so.6:__memcpy_chk) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
-==1455071== WARNING: new redirection conflicts with existing -- ignoring it
---1455071--     old: 0x04eca5d0 (__memcpy_chk_avx_una) R-> (2024.0) 0x04853070 __memmove_chk
---1455071--     new: 0x04eca5d0 (__memcpy_chk_avx_una) R-> (2030.0) 0x04853770 __memcpy_chk
---1455071-- REDIR: 0x4e1f610 (libc.so.6:wcslen) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e07a10 (libc.so.6:memset) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e1ff20 (libc.so.6:wcsnlen) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e0aa10 (libc.so.6:strnlen) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e0aaa0 (libc.so.6:strpbrk) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e08a10 (libc.so.6:strcmp) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e07980 (libc.so.6:memrchr) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e1e400 (libc.so.6:wcschr) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e08900 (libc.so.6:index) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e0aad0 (libc.so.6:rindex) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e1e4b0 (libc.so.6:wcscmp) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e07c30 (libc.so.6:stpncpy) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e2c800 (libc.so.6:wmemchr) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e0a8b0 (libc.so.6:strncmp) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e07c90 (libc.so.6:strcasecmp) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e09c90 (libc.so.6:strcspn) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e1f3e0 (libc.so.6:wcscpy) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e0a7b0 (libc.so.6:strncasecmp_l) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e08980 (libc.so.6:strchrnul) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e06dc0 (libc.so.6:bcmp) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e09c20 (libc.so.6:strcpy) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e07d30 (libc.so.6:strcasecmp_l) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e0a680 (libc.so.6:strlen) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e0a950 (libc.so.6:strncpy) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e07740 (libc.so.6:memmove) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
-==1455071== Preferring higher priority redirection:
---1455071--     old: 0x04eca600 (__memcpy_avx_unalign) R-> (2018.0) 0x048505e0 __memcpy_avx_unaligned_erms
---1455071--     new: 0x04eca600 (__memcpy_avx_unalign) R-> (2018.1) 0x04852370 memmove
---1455071-- REDIR: 0x4e06d40 (libc.so.6:memchr) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4e0aca0 (libc.so.6:strspn) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
-==1455071== WARNING: new redirection conflicts with existing -- ignoring it
---1455071--     old: 0x04eca5d0 (__memcpy_chk_avx_una) R-> (2024.0) 0x04853070 __memmove_chk
---1455071--     new: 0x04eca5d0 (__memcpy_chk_avx_una) R-> (2030.0) 0x04853770 __memcpy_chk
---1455071-- REDIR: 0x4e0b5f0 (libc.so.6:strstr) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
---1455071-- REDIR: 0x4ecf230 (libc.so.6:__strrchr_avx2) redirected to 0x484d360 (rindex)
---1455071-- REDIR: 0x4ecd380 (libc.so.6:__strlen_avx2) redirected to 0x484da60 (strlen)
---1455071-- REDIR: 0x4ece460 (libc.so.6:__strncmp_avx2) redirected to 0x484e4a0 (strncmp)
---1455071-- REDIR: 0x4e02e50 (libc.so.6:malloc) redirected to 0x4844730 (malloc)
---1455071-- REDIR: 0x4ecb000 (libc.so.6:__memset_avx2_unaligned_erms) redirected to 0x4852230 (memset)
---1455071-- REDIR: 0x4ecc7a0 (libc.so.6:__strchr_avx2) redirected to 0x484d5a0 (index)
---1455071-- REDIR: 0x4ecd130 (libc.so.6:__strcpy_avx2) redirected to 0x484dbb0 (strcpy)
---1455071-- REDIR: 0x4ecc490 (libc.so.6:__strcat_avx2) redirected to 0x484d5d0 (strcat)
---1455071-- REDIR: 0x4eca600 (libc.so.6:__memcpy_avx_unaligned_erms) redirected to 0x4852370 (memmove)
---1455071-- REDIR: 0x4ecc9e0 (libc.so.6:__strchrnul_avx2) redirected to 0x48530f0 (strchrnul)
---1455071-- REDIR: 0x4e03550 (libc.so.6:free) redirected to 0x4847880 (free)
---1455071-- REDIR: 0x4eca5c0 (libc.so.6:__mempcpy_avx_unaligned_erms) redirected to 0x4853220 (mempcpy)
---1455071-- REDIR: 0x4e03ed0 (libc.so.6:calloc) redirected to 0x484bb60 (calloc)
---1455071-- REDIR: 0x4eec9e0 (libc.so.6:__strspn_sse42) redirected to 0x4853b10 (strspn)
---1455071-- REDIR: 0x4ee9d40 (libc.so.6:__strcspn_sse42) redirected to 0x4853a10 (strcspn)
---1455071-- REDIR: 0x4eccbd0 (libc.so.6:__strcmp_avx2) redirected to 0x484eda0 (strcmp)
-==1455071== Invalid read of size 1
-==1455071==    at 0x4853A67: strcspn (vg_replace_strmem.c:1948)
-==1455071==    by 0x4E0B672: strtok_r (strtok_r.c:64)
-==1455071==    by 0x10D1C0: serve (server.c:93)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x651ee00 is 0 bytes after a block of size 16 alloc'd
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10B753: newPacket (socket_manager.c:79)
-==1455071==    by 0x10BD77: run_recv_daemon (socket_manager.c:235)
-==1455071==    by 0x10BEE4: run_recv_daemon_async (socket_manager.c:265)
-==1455071==    by 0x4DF239C: start_thread (pthread_create.c:447)
-==1455071==    by 0x4E772A3: clone (clone.S:100)
-==1455071== 
-==1455071== Invalid read of size 1
-==1455071==    at 0x4E0B677: strtok_r (strtok_r.c:65)
-==1455071==    by 0x10D1C0: serve (server.c:93)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x651ee00 is 0 bytes after a block of size 16 alloc'd
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10B753: newPacket (socket_manager.c:79)
-==1455071==    by 0x10BD77: run_recv_daemon (socket_manager.c:235)
-==1455071==    by 0x10BEE4: run_recv_daemon_async (socket_manager.c:265)
-==1455071==    by 0x4DF239C: start_thread (pthread_create.c:447)
-==1455071==    by 0x4E772A3: clone (clone.S:100)
-==1455071== 
-==1455071== Invalid read of size 1
-==1455071==    at 0x4DABACF: ____strtol_l_internal (strtol_l.c:449)
-==1455071==    by 0x4D9C623: atoi (atoi.c:27)
-==1455071==    by 0x10D1C8: serve (server.c:93)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x651ee00 is 0 bytes after a block of size 16 alloc'd
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10B753: newPacket (socket_manager.c:79)
-==1455071==    by 0x10BD77: run_recv_daemon (socket_manager.c:235)
-==1455071==    by 0x10BEE4: run_recv_daemon_async (socket_manager.c:265)
-==1455071==    by 0x4DF239C: start_thread (pthread_create.c:447)
-==1455071==    by 0x4E772A3: clone (clone.S:100)
-==1455071== 
-==1455071== Invalid write of size 1
-==1455071==    at 0x4E0B67C: strtok_r (strtok_r.c:72)
-==1455071==    by 0x10D1C0: serve (server.c:93)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x56fd804 is 14 bytes after a block of size 22 alloc'd
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10B753: newPacket (socket_manager.c:79)
-==1455071==    by 0x10BD77: run_recv_daemon (socket_manager.c:235)
-==1455071==    by 0x10BEE4: run_recv_daemon_async (socket_manager.c:265)
-==1455071==    by 0x4DF239C: start_thread (pthread_create.c:447)
-==1455071==    by 0x4E772A3: clone (clone.S:100)
-==1455071== 
-==1455071== Invalid read of size 8
-==1455071==    at 0x48524DF: memmove (vg_replace_strmem.c:1414)
-==1455071==    by 0x10B770: newPacket (socket_manager.c:80)
-==1455071==    by 0x10D246: serve (server.c:97)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x528d468 is 7 bytes after a block of size 3,354,001 alloc'd
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10A721: read_file (file_utils.c:44)
-==1455071==    by 0x10A90F: read_files (file_utils.c:83)
-==1455071==    by 0x10D4E5: main (server.c:155)
-==1455071== 
-==1455071== Invalid read of size 8
-==1455071==    at 0x48524C4: memmove (vg_replace_strmem.c:1414)
-==1455071==    by 0x10B770: newPacket (socket_manager.c:80)
-==1455071==    by 0x10D246: serve (server.c:97)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x528d470 is 15 bytes after a block of size 3,354,001 alloc'd
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10A721: read_file (file_utils.c:44)
-==1455071==    by 0x10A90F: read_files (file_utils.c:83)
-==1455071==    by 0x10D4E5: main (server.c:155)
-==1455071== 
-==1455071== Invalid read of size 8
-==1455071==    at 0x48524CF: memmove (vg_replace_strmem.c:1414)
-==1455071==    by 0x10B770: newPacket (socket_manager.c:80)
-==1455071==    by 0x10D246: serve (server.c:97)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x528d478 is 23 bytes after a block of size 3,354,001 alloc'd
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10A721: read_file (file_utils.c:44)
-==1455071==    by 0x10A90F: read_files (file_utils.c:83)
-==1455071==    by 0x10D4E5: main (server.c:155)
-==1455071== 
-==1455071== Invalid read of size 8
-==1455071==    at 0x48524D7: memmove (vg_replace_strmem.c:1414)
-==1455071==    by 0x10B770: newPacket (socket_manager.c:80)
-==1455071==    by 0x10D246: serve (server.c:97)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x528d480 is 16 bytes after a block of size 3,354,016 in arena "client"
-==1455071== 
-==1455071== Invalid read of size 1
-==1455071==    at 0x4852430: memmove (vg_replace_strmem.c:1414)
-==1455071==    by 0x10B770: newPacket (socket_manager.c:80)
-==1455071==    by 0x10D246: serve (server.c:97)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x52bd200 is 36,864 bytes inside a block of size 50,002 free'd
-==1455071==    at 0x48478EF: free (vg_replace_malloc.c:989)
-==1455071==    by 0x10B7CB: destroy_packet (socket_manager.c:90)
-==1455071==    by 0x10D36A: serve (server.c:110)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Block was alloc'd at
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10CF05: make_server_packet (server.c:53)
-==1455071==    by 0x10D2ED: serve (server.c:105)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071== 
---1455071-- Reading syms from /usr/lib/libgcc_s.so.1
---1455071-- Discarding syms at 0x7757040-0x777a165 in /usr/lib/libgcc_s.so.1 (have_dinfo 1)
-==1455071== 
-==1455071== HEAP SUMMARY:
-==1455071==     in use at exit: 120,272 bytes in 13 blocks
-==1455071==   total heap usage: 3,959 allocs, 3,946 frees, 43,077,689 bytes allocated
-==1455071== 
-==1455071== Searching for pointers to 13 not-freed blocks
-==1455071== Checked 8,498,424 bytes
-==1455071== 
-==1455071== 272 bytes in 1 blocks are possibly lost in loss record 1 of 2
-==1455071==    at 0x484BC13: calloc (vg_replace_malloc.c:1675)
-==1455071==    by 0x4011003: calloc (rtld-malloc.h:44)
-==1455071==    by 0x4011003: allocate_dtv (dl-tls.c:395)
-==1455071==    by 0x4011AE1: _dl_allocate_tls (dl-tls.c:664)
-==1455071==    by 0x4DF2F14: allocate_stack (allocatestack.c:429)
-==1455071==    by 0x4DF2F14: pthread_create@@GLIBC_2.34 (pthread_create.c:655)
-==1455071==    by 0x10D530: main (server.c:159)
-==1455071== 
-==1455071== 120,000 bytes in 12 blocks are definitely lost in loss record 2 of 2
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10CDBA: gen_file_list (server.c:21)
-==1455071==    by 0x10D0FD: serve (server.c:89)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071== 
-==1455071== LEAK SUMMARY:
-==1455071==    definitely lost: 120,000 bytes in 12 blocks
-==1455071==    indirectly lost: 0 bytes in 0 blocks
-==1455071==      possibly lost: 272 bytes in 1 blocks
-==1455071==    still reachable: 0 bytes in 0 blocks
-==1455071==         suppressed: 0 bytes in 0 blocks
-==1455071== 
-==1455071== ERROR SUMMARY: 119109 errors from 11 contexts (suppressed: 0 from 0)
-==1455071== 
-==1455071== 1 errors in context 1 of 11:
-==1455071== Invalid read of size 1
-==1455071==    at 0x4852430: memmove (vg_replace_strmem.c:1414)
-==1455071==    by 0x10B770: newPacket (socket_manager.c:80)
-==1455071==    by 0x10D246: serve (server.c:97)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x52bd200 is 36,864 bytes inside a block of size 50,002 free'd
-==1455071==    at 0x48478EF: free (vg_replace_malloc.c:989)
-==1455071==    by 0x10B7CB: destroy_packet (socket_manager.c:90)
-==1455071==    by 0x10D36A: serve (server.c:110)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Block was alloc'd at
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10CF05: make_server_packet (server.c:53)
-==1455071==    by 0x10D2ED: serve (server.c:105)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071== 
-==1455071== 
-==1455071== 2 errors in context 2 of 11:
-==1455071== Invalid write of size 1
-==1455071==    at 0x4E0B67C: strtok_r (strtok_r.c:72)
-==1455071==    by 0x10D1C0: serve (server.c:93)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x56fd804 is 14 bytes after a block of size 22 alloc'd
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10B753: newPacket (socket_manager.c:79)
-==1455071==    by 0x10BD77: run_recv_daemon (socket_manager.c:235)
-==1455071==    by 0x10BEE4: run_recv_daemon_async (socket_manager.c:265)
-==1455071==    by 0x4DF239C: start_thread (pthread_create.c:447)
-==1455071==    by 0x4E772A3: clone (clone.S:100)
-==1455071== 
-==1455071== 
-==1455071== 143 errors in context 3 of 11:
-==1455071== Invalid read of size 1
-==1455071==    at 0x4E0B677: strtok_r (strtok_r.c:65)
-==1455071==    by 0x10D1C0: serve (server.c:93)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x651ee00 is 0 bytes after a block of size 16 alloc'd
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10B753: newPacket (socket_manager.c:79)
-==1455071==    by 0x10BD77: run_recv_daemon (socket_manager.c:235)
-==1455071==    by 0x10BEE4: run_recv_daemon_async (socket_manager.c:265)
-==1455071==    by 0x4DF239C: start_thread (pthread_create.c:447)
-==1455071==    by 0x4E772A3: clone (clone.S:100)
-==1455071== 
-==1455071== 
-==1455071== 146 errors in context 4 of 11:
-==1455071== Invalid read of size 1
-==1455071==    at 0x4DABACF: ____strtol_l_internal (strtol_l.c:449)
-==1455071==    by 0x4D9C623: atoi (atoi.c:27)
-==1455071==    by 0x10D1C8: serve (server.c:93)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x651ee00 is 0 bytes after a block of size 16 alloc'd
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10B753: newPacket (socket_manager.c:79)
-==1455071==    by 0x10BD77: run_recv_daemon (socket_manager.c:235)
-==1455071==    by 0x10BEE4: run_recv_daemon_async (socket_manager.c:265)
-==1455071==    by 0x4DF239C: start_thread (pthread_create.c:447)
-==1455071==    by 0x4E772A3: clone (clone.S:100)
-==1455071== 
-==1455071== 
-==1455071== 273 errors in context 5 of 11:
-==1455071== Invalid read of size 1
-==1455071==    at 0x4853A67: strcspn (vg_replace_strmem.c:1948)
-==1455071==    by 0x4E0B672: strtok_r (strtok_r.c:64)
-==1455071==    by 0x10D1C0: serve (server.c:93)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x651ee00 is 0 bytes after a block of size 16 alloc'd
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10B753: newPacket (socket_manager.c:79)
-==1455071==    by 0x10BD77: run_recv_daemon (socket_manager.c:235)
-==1455071==    by 0x10BEE4: run_recv_daemon_async (socket_manager.c:265)
-==1455071==    by 0x4DF239C: start_thread (pthread_create.c:447)
-==1455071==    by 0x4E772A3: clone (clone.S:100)
-==1455071== 
-==1455071== 
-==1455071== 29626 errors in context 6 of 11:
-==1455071== Invalid read of size 8
-==1455071==    at 0x48524C4: memmove (vg_replace_strmem.c:1414)
-==1455071==    by 0x10B770: newPacket (socket_manager.c:80)
-==1455071==    by 0x10D246: serve (server.c:97)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x528d470 is 15 bytes after a block of size 3,354,001 alloc'd
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10A721: read_file (file_utils.c:44)
-==1455071==    by 0x10A90F: read_files (file_utils.c:83)
-==1455071==    by 0x10D4E5: main (server.c:155)
-==1455071== 
-==1455071== 
-==1455071== 29629 errors in context 7 of 11:
-==1455071== Invalid read of size 8
-==1455071==    at 0x48524D7: memmove (vg_replace_strmem.c:1414)
-==1455071==    by 0x10B770: newPacket (socket_manager.c:80)
-==1455071==    by 0x10D246: serve (server.c:97)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x528d480 is 16 bytes after a block of size 3,354,016 in arena "client"
-==1455071== 
-==1455071== 
-==1455071== 29641 errors in context 8 of 11:
-==1455071== Invalid read of size 8
-==1455071==    at 0x48524CF: memmove (vg_replace_strmem.c:1414)
-==1455071==    by 0x10B770: newPacket (socket_manager.c:80)
-==1455071==    by 0x10D246: serve (server.c:97)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x528d478 is 23 bytes after a block of size 3,354,001 alloc'd
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10A721: read_file (file_utils.c:44)
-==1455071==    by 0x10A90F: read_files (file_utils.c:83)
-==1455071==    by 0x10D4E5: main (server.c:155)
-==1455071== 
-==1455071== 
-==1455071== 29646 errors in context 9 of 11:
-==1455071== Invalid read of size 8
-==1455071==    at 0x48524DF: memmove (vg_replace_strmem.c:1414)
-==1455071==    by 0x10B770: newPacket (socket_manager.c:80)
-==1455071==    by 0x10D246: serve (server.c:97)
-==1455071==    by 0x10D574: main (server.c:167)
-==1455071==  Address 0x528d468 is 7 bytes after a block of size 3,354,001 alloc'd
-==1455071==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
-==1455071==    by 0x10A721: read_file (file_utils.c:44)
-==1455071==    by 0x10A90F: read_files (file_utils.c:83)
-==1455071==    by 0x10D4E5: main (server.c:155)
-==1455071== 
-==1455071== ERROR SUMMARY: 119109 errors from 11 contexts (suppressed: 0 from 0)
+==1558274== Memcheck, a memory error detector
+==1558274== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.
+==1558274== Using Valgrind-3.23.0-c54d316124-20240426 and LibVEX; rerun with -h for copyright info
+==1558274== Command: /tmp/29625 8082
+==1558274== Parent PID: 1558216
+==1558274== 
+--1558274-- 
+--1558274-- Valgrind options:
+--1558274--    --leak-check=full
+--1558274--    --show-leak-kinds=all
+--1558274--    --track-origins=yes
+--1558274--    --verbose
+--1558274--    --log-file=valgrind-server.txt
+--1558274-- Contents of /proc/version:
+--1558274--   Linux version 6.11.4-arch2-1 (linux@archlinux) (gcc (GCC) 14.2.1 20240910, GNU ld (GNU Binutils) 2.43.0) #1 SMP PREEMPT_DYNAMIC Sun, 20 Oct 2024 18:20:12 +0000
+--1558274-- 
+--1558274-- Arch and hwcaps: AMD64, LittleEndian, amd64-cx16-lzcnt-rdtscp-sse3-ssse3-avx-avx2-bmi-f16c-rdrand-rdseed-fma
+--1558274-- Page sizes: currently 4096, max supported 4096
+--1558274-- Valgrind library directory: /usr/lib/valgrind
+--1558274-- Reading syms from /tmp/29625
+--1558274-- Reading syms from /usr/lib/ld-linux-x86-64.so.2
+==1558274== Downloading debug info for /usr/lib/ld-linux-x86-64.so.2...
+--1558274--   Considering /home/morteza/.cache/debuginfod_client/1eb3b3e47bd3d9034ef4bd4ede577a26bcc6dcc6/debuginfo ..
+--1558274--   .. CRC is valid
+==1558274== Successfully downloaded debug file for /usr/lib/ld-linux-x86-64.so.2
+--1558274-- Reading syms from /usr/lib/valgrind/memcheck-amd64-linux
+--1558274--    object doesn't have a dynamic symbol table
+--1558274-- Scheduler: using generic scheduler lock implementation.
+--1558274-- Reading suppressions file: /usr/lib/valgrind/default.supp
+==1558274== embedded gdbserver: reading from /tmp/vgdb-pipe-from-vgdb-to-1558274-by-morteza-on-???
+==1558274== embedded gdbserver: writing to   /tmp/vgdb-pipe-to-vgdb-from-1558274-by-morteza-on-???
+==1558274== embedded gdbserver: shared mem   /tmp/vgdb-pipe-shared-mem-vgdb-1558274-by-morteza-on-???
+==1558274== 
+==1558274== TO CONTROL THIS PROCESS USING vgdb (which you probably
+==1558274== don't want to do, unless you know exactly what you're doing,
+==1558274== or are doing some strange experiment):
+==1558274==   /usr/lib/valgrind/../../bin/vgdb --pid=1558274 ...command...
+==1558274== 
+==1558274== TO DEBUG THIS PROCESS USING GDB: start GDB like this
+==1558274==   /path/to/gdb /tmp/29625
+==1558274== and then give GDB the following command
+==1558274==   target remote | /usr/lib/valgrind/../../bin/vgdb --pid=1558274
+==1558274== --pid is optional if only one valgrind process is running
+==1558274== 
+==1558274== Downloading debug info for /usr/lib/valgrind/memcheck-amd64-linux...
+--1558274--   Considering /home/morteza/.cache/debuginfod_client/4d2d511b631f05d8d4ca87b5d6cbe5816ee8c7cf/debuginfo ..
+--1558274--   .. CRC is valid
+==1558274== Successfully downloaded debug file for /usr/lib/valgrind/memcheck-amd64-linux
+--1558274-- Warning: cross-CU LIMITATION: some inlined fn names
+--1558274-- might be shown as UnknownInlinedFun
+--1558274-- REDIR: 0x40270e0 (ld-linux-x86-64.so.2:strlen) redirected to 0x5821c154 (vgPlain_amd64_linux_REDIR_FOR_strlen)
+--1558274-- REDIR: 0x4025aa0 (ld-linux-x86-64.so.2:strcmp) redirected to 0x5821c16e (vgPlain_amd64_linux_REDIR_FOR_strcmp)
+--1558274-- REDIR: 0x4025870 (ld-linux-x86-64.so.2:index) redirected to 0x5821c189 (vgPlain_amd64_linux_REDIR_FOR_index)
+--1558274-- Reading syms from /usr/lib/valgrind/vgpreload_core-amd64-linux.so
+--1558274-- Reading syms from /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so
+==1558274== WARNING: new redirection conflicts with existing -- ignoring it
+--1558274--     old: 0x04025aa0 (strcmp              ) R-> (0000.0) 0x5821c16e vgPlain_amd64_linux_REDIR_FOR_strcmp
+==1558274== Downloading debug info for /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so...
+--1558274--   Considering /home/morteza/.cache/debuginfod_client/f70c4c5c28cf3c78e2c902057189c62680dab783/debuginfo ..
+--1558274--   .. CRC is valid
+==1558274== Successfully downloaded debug file for /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so
+--1558274--     new: 0x04025aa0 (strcmp              ) R-> (2016.0) 0x0484ef10 strcmp
+==1558274== WARNING: new redirection conflicts with existing -- ignoring it
+--1558274--     old: 0x040270e0 (strlen              ) R-> (0000.0) 0x5821c154 vgPlain_amd64_linux_REDIR_FOR_strlen
+--1558274--     new: 0x040270e0 (strlen              ) R-> (2007.0) 0x0484db80 strlen
+--1558274-- REDIR: 0x4024ed0 (ld-linux-x86-64.so.2:mempcpy) redirected to 0x4853660 (mempcpy)
+--1558274-- Reading syms from /usr/lib/libcrypto.so.3
+--1558274-- Reading syms from /usr/lib/libc.so.6
+==1558274== Downloading debug info for /usr/lib/libc.so.6...
+--1558274--   Considering /home/morteza/.cache/debuginfod_client/98b3d8e0b8c534c769cb871c438b4f8f3a8e4bf3/debuginfo ..
+--1558274--   .. CRC is valid
+==1558274== Successfully downloaded debug file for /usr/lib/libc.so.6
+--1558274-- REDIR: 0x4027280 (ld-linux-x86-64.so.2:strncmp) redirected to 0x484e680 (strncmp)
+==1558274== Downloading debug info for /usr/lib/valgrind/vgpreload_core-amd64-linux.so...
+--1558274--   Considering /home/morteza/.cache/debuginfod_client/9ed1c3d295eaf28d9c2cf4c3a6480938496dcc90/debuginfo ..
+--1558274--   .. CRC is valid
+==1558274== Successfully downloaded debug file for /usr/lib/valgrind/vgpreload_core-amd64-linux.so
+--1558274-- REDIR: 0x4e0a710 (libc.so.6:strncasecmp) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e07860 (libc.so.6:mempcpy) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e1e010 (libc.so.6:wcpncpy) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e07bc0 (libc.so.6:stpcpy) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e84060 (libc.so.6:__memmove_chk) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e2c880 (libc.so.6:wmemcmp) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e08890 (libc.so.6:strcat) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e06eb0 (libc.so.6:memcpy@@GLIBC_2.14) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e1fec0 (libc.so.6:wcsncpy) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e83f40 (libc.so.6:__memcpy_chk) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+==1558274== WARNING: new redirection conflicts with existing -- ignoring it
+--1558274--     old: 0x04eca5d0 (__memcpy_chk_avx_una) R-> (2024.0) 0x04853070 __memmove_chk
+--1558274--     new: 0x04eca5d0 (__memcpy_chk_avx_una) R-> (2030.0) 0x04853770 __memcpy_chk
+--1558274-- REDIR: 0x4e1f610 (libc.so.6:wcslen) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e07a10 (libc.so.6:memset) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e1ff20 (libc.so.6:wcsnlen) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e0aa10 (libc.so.6:strnlen) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e0aaa0 (libc.so.6:strpbrk) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e08a10 (libc.so.6:strcmp) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e07980 (libc.so.6:memrchr) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e1e400 (libc.so.6:wcschr) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e08900 (libc.so.6:index) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e0aad0 (libc.so.6:rindex) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e1e4b0 (libc.so.6:wcscmp) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e07c30 (libc.so.6:stpncpy) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e2c800 (libc.so.6:wmemchr) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e0a8b0 (libc.so.6:strncmp) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e07c90 (libc.so.6:strcasecmp) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e09c90 (libc.so.6:strcspn) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e1f3e0 (libc.so.6:wcscpy) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e0a7b0 (libc.so.6:strncasecmp_l) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e08980 (libc.so.6:strchrnul) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e06dc0 (libc.so.6:bcmp) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e09c20 (libc.so.6:strcpy) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e07d30 (libc.so.6:strcasecmp_l) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e0a680 (libc.so.6:strlen) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e0a950 (libc.so.6:strncpy) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e07740 (libc.so.6:memmove) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+==1558274== Preferring higher priority redirection:
+--1558274--     old: 0x04eca600 (__memcpy_avx_unalign) R-> (2018.0) 0x048505e0 __memcpy_avx_unaligned_erms
+--1558274--     new: 0x04eca600 (__memcpy_avx_unalign) R-> (2018.1) 0x04852370 memmove
+--1558274-- REDIR: 0x4e06d40 (libc.so.6:memchr) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4e0aca0 (libc.so.6:strspn) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+==1558274== WARNING: new redirection conflicts with existing -- ignoring it
+--1558274--     old: 0x04eca5d0 (__memcpy_chk_avx_una) R-> (2024.0) 0x04853070 __memmove_chk
+--1558274--     new: 0x04eca5d0 (__memcpy_chk_avx_una) R-> (2030.0) 0x04853770 __memcpy_chk
+--1558274-- REDIR: 0x4e0b5f0 (libc.so.6:strstr) redirected to 0x48391a0 (_vgnU_ifunc_wrapper)
+--1558274-- REDIR: 0x4ecf230 (libc.so.6:__strrchr_avx2) redirected to 0x484d360 (rindex)
+--1558274-- REDIR: 0x4ecd380 (libc.so.6:__strlen_avx2) redirected to 0x484da60 (strlen)
+--1558274-- REDIR: 0x4ece460 (libc.so.6:__strncmp_avx2) redirected to 0x484e4a0 (strncmp)
+--1558274-- REDIR: 0x4e02e50 (libc.so.6:malloc) redirected to 0x4844730 (malloc)
+--1558274-- REDIR: 0x4ecb000 (libc.so.6:__memset_avx2_unaligned_erms) redirected to 0x4852230 (memset)
+--1558274-- REDIR: 0x4ecc7a0 (libc.so.6:__strchr_avx2) redirected to 0x484d5a0 (index)
+--1558274-- REDIR: 0x4ecd130 (libc.so.6:__strcpy_avx2) redirected to 0x484dbb0 (strcpy)
+--1558274-- REDIR: 0x4ecc490 (libc.so.6:__strcat_avx2) redirected to 0x484d5d0 (strcat)
+--1558274-- REDIR: 0x4e03550 (libc.so.6:free) redirected to 0x4847880 (free)
+--1558274-- REDIR: 0x4eca5c0 (libc.so.6:__mempcpy_avx_unaligned_erms) redirected to 0x4853220 (mempcpy)
+--1558274-- REDIR: 0x4ecc9e0 (libc.so.6:__strchrnul_avx2) redirected to 0x48530f0 (strchrnul)
+--1558274-- REDIR: 0x4eca600 (libc.so.6:__memcpy_avx_unaligned_erms) redirected to 0x4852370 (memmove)
+--1558274-- REDIR: 0x4e03ed0 (libc.so.6:calloc) redirected to 0x484bb60 (calloc)
+--1558274-- REDIR: 0x4eec9e0 (libc.so.6:__strspn_sse42) redirected to 0x4853b10 (strspn)
+--1558274-- REDIR: 0x4ee9d40 (libc.so.6:__strcspn_sse42) redirected to 0x4853a10 (strcspn)
+--1558274-- REDIR: 0x4eccbd0 (libc.so.6:__strcmp_avx2) redirected to 0x484eda0 (strcmp)
+==1558274== Invalid read of size 1
+==1558274==    at 0x4853A67: strcspn (vg_replace_strmem.c:1948)
+==1558274==    by 0x4E0B672: strtok_r (strtok_r.c:64)
+==1558274==    by 0x10D1FF: serve (server.c:94)
+==1558274==    by 0x10D5D5: main (server.c:177)
+==1558274==  Address 0x534fd50 is 0 bytes after a block of size 16 alloc'd
+==1558274==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
+==1558274==    by 0x10B783: newPacket (socket_manager.c:79)
+==1558274==    by 0x10BDA7: run_recv_daemon (socket_manager.c:235)
+==1558274==    by 0x10BF14: run_recv_daemon_async (socket_manager.c:265)
+==1558274==    by 0x4DF239C: start_thread (pthread_create.c:447)
+==1558274==    by 0x4E772A3: clone (clone.S:100)
+==1558274== 
+==1558274== Invalid read of size 1
+==1558274==    at 0x4E0B677: strtok_r (strtok_r.c:65)
+==1558274==    by 0x10D1FF: serve (server.c:94)
+==1558274==    by 0x10D5D5: main (server.c:177)
+==1558274==  Address 0x534fd50 is 0 bytes after a block of size 16 alloc'd
+==1558274==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
+==1558274==    by 0x10B783: newPacket (socket_manager.c:79)
+==1558274==    by 0x10BDA7: run_recv_daemon (socket_manager.c:235)
+==1558274==    by 0x10BF14: run_recv_daemon_async (socket_manager.c:265)
+==1558274==    by 0x4DF239C: start_thread (pthread_create.c:447)
+==1558274==    by 0x4E772A3: clone (clone.S:100)
+==1558274== 
+==1558274== Invalid read of size 1
+==1558274==    at 0x4DABACF: ____strtol_l_internal (strtol_l.c:449)
+==1558274==    by 0x4D9C623: atoi (atoi.c:27)
+==1558274==    by 0x10D207: serve (server.c:94)
+==1558274==    by 0x10D5D5: main (server.c:177)
+==1558274==  Address 0x534fd50 is 0 bytes after a block of size 16 alloc'd
+==1558274==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
+==1558274==    by 0x10B783: newPacket (socket_manager.c:79)
+==1558274==    by 0x10BDA7: run_recv_daemon (socket_manager.c:235)
+==1558274==    by 0x10BF14: run_recv_daemon_async (socket_manager.c:265)
+==1558274==    by 0x4DF239C: start_thread (pthread_create.c:447)
+==1558274==    by 0x4E772A3: clone (clone.S:100)
+==1558274== 
+--1558274-- Reading syms from /usr/lib/libgcc_s.so.1
+==1558274== Invalid free() / delete / delete[] / realloc()
+==1558274==    at 0x48478EF: free (vg_replace_malloc.c:989)
+==1558274==    by 0x10ACC0: free_file (file_utils.c:163)
+==1558274==    by 0x10D5F5: main (server.c:180)
+==1558274==  Address 0x10e078 is in a r-- mapped file /tmp/29625 segment
+==1558274== 
+==1558274== Conditional jump or move depends on uninitialised value(s)
+==1558274==    at 0x48478A5: free (vg_replace_malloc.c:989)
+==1558274==    by 0x10ACCC: free_file (file_utils.c:164)
+==1558274==    by 0x10D5F5: main (server.c:180)
+==1558274==  Uninitialised value was created by a heap allocation
+==1558274==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
+==1558274==    by 0x10A87A: read_files (file_utils.c:73)
+==1558274==    by 0x10D546: main (server.c:165)
+==1558274== 
+--1558274-- Discarding syms at 0x7357040-0x737a165 in /usr/lib/libgcc_s.so.1 (have_dinfo 1)
+==1558274== 
+==1558274== HEAP SUMMARY:
+==1558274==     in use at exit: 6,858,272 bytes in 152 blocks
+==1558274==   total heap usage: 3,882 allocs, 3,735 frees, 31,438,452 bytes allocated
+==1558274== 
+==1558274== Searching for pointers to 152 not-freed blocks
+==1558274== Checked 8,534,304 bytes
+==1558274== 
+==1558274== 272 bytes in 1 blocks are possibly lost in loss record 1 of 4
+==1558274==    at 0x484BC13: calloc (vg_replace_malloc.c:1675)
+==1558274==    by 0x4011003: calloc (rtld-malloc.h:44)
+==1558274==    by 0x4011003: allocate_dtv (dl-tls.c:395)
+==1558274==    by 0x4011AE1: _dl_allocate_tls (dl-tls.c:664)
+==1558274==    by 0x4DF2F14: allocate_stack (allocatestack.c:429)
+==1558274==    by 0x4DF2F14: pthread_create@@GLIBC_2.34 (pthread_create.c:655)
+==1558274==    by 0x10D591: main (server.c:169)
+==1558274== 
+==1558274== 100,000 bytes in 2 blocks are possibly lost in loss record 2 of 4
+==1558274==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
+==1558274==    by 0x10D258: serve (server.c:103)
+==1558274==    by 0x10D5D5: main (server.c:177)
+==1558274== 
+==1558274== 150,000 bytes in 15 blocks are definitely lost in loss record 3 of 4
+==1558274==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
+==1558274==    by 0x10CDEA: gen_file_list (server.c:22)
+==1558274==    by 0x10D13C: serve (server.c:90)
+==1558274==    by 0x10D5D5: main (server.c:177)
+==1558274== 
+==1558274== 6,608,000 bytes in 134 blocks are definitely lost in loss record 4 of 4
+==1558274==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
+==1558274==    by 0x10D258: serve (server.c:103)
+==1558274==    by 0x10D5D5: main (server.c:177)
+==1558274== 
+==1558274== LEAK SUMMARY:
+==1558274==    definitely lost: 6,758,000 bytes in 149 blocks
+==1558274==    indirectly lost: 0 bytes in 0 blocks
+==1558274==      possibly lost: 100,272 bytes in 3 blocks
+==1558274==    still reachable: 0 bytes in 0 blocks
+==1558274==         suppressed: 0 bytes in 0 blocks
+==1558274== 
+==1558274== ERROR SUMMARY: 445 errors from 9 contexts (suppressed: 0 from 0)
+==1558274== 
+==1558274== 5 errors in context 1 of 9:
+==1558274== Conditional jump or move depends on uninitialised value(s)
+==1558274==    at 0x48478A5: free (vg_replace_malloc.c:989)
+==1558274==    by 0x10ACCC: free_file (file_utils.c:164)
+==1558274==    by 0x10D5F5: main (server.c:180)
+==1558274==  Uninitialised value was created by a heap allocation
+==1558274==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
+==1558274==    by 0x10A87A: read_files (file_utils.c:73)
+==1558274==    by 0x10D546: main (server.c:165)
+==1558274== 
+==1558274== 
+==1558274== 5 errors in context 2 of 9:
+==1558274== Invalid free() / delete / delete[] / realloc()
+==1558274==    at 0x48478EF: free (vg_replace_malloc.c:989)
+==1558274==    by 0x10ACC0: free_file (file_utils.c:163)
+==1558274==    by 0x10D5F5: main (server.c:180)
+==1558274==  Address 0x10e078 is in a r-- mapped file /tmp/29625 segment
+==1558274== 
+==1558274== 
+==1558274== 136 errors in context 3 of 9:
+==1558274== Invalid read of size 1
+==1558274==    at 0x4DABACF: ____strtol_l_internal (strtol_l.c:449)
+==1558274==    by 0x4D9C623: atoi (atoi.c:27)
+==1558274==    by 0x10D207: serve (server.c:94)
+==1558274==    by 0x10D5D5: main (server.c:177)
+==1558274==  Address 0x534fd50 is 0 bytes after a block of size 16 alloc'd
+==1558274==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
+==1558274==    by 0x10B783: newPacket (socket_manager.c:79)
+==1558274==    by 0x10BDA7: run_recv_daemon (socket_manager.c:235)
+==1558274==    by 0x10BF14: run_recv_daemon_async (socket_manager.c:265)
+==1558274==    by 0x4DF239C: start_thread (pthread_create.c:447)
+==1558274==    by 0x4E772A3: clone (clone.S:100)
+==1558274== 
+==1558274== 
+==1558274== 136 errors in context 4 of 9:
+==1558274== Invalid read of size 1
+==1558274==    at 0x4E0B677: strtok_r (strtok_r.c:65)
+==1558274==    by 0x10D1FF: serve (server.c:94)
+==1558274==    by 0x10D5D5: main (server.c:177)
+==1558274==  Address 0x534fd50 is 0 bytes after a block of size 16 alloc'd
+==1558274==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
+==1558274==    by 0x10B783: newPacket (socket_manager.c:79)
+==1558274==    by 0x10BDA7: run_recv_daemon (socket_manager.c:235)
+==1558274==    by 0x10BF14: run_recv_daemon_async (socket_manager.c:265)
+==1558274==    by 0x4DF239C: start_thread (pthread_create.c:447)
+==1558274==    by 0x4E772A3: clone (clone.S:100)
+==1558274== 
+==1558274== 
+==1558274== 159 errors in context 5 of 9:
+==1558274== Invalid read of size 1
+==1558274==    at 0x4853A67: strcspn (vg_replace_strmem.c:1948)
+==1558274==    by 0x4E0B672: strtok_r (strtok_r.c:64)
+==1558274==    by 0x10D1FF: serve (server.c:94)
+==1558274==    by 0x10D5D5: main (server.c:177)
+==1558274==  Address 0x534fd50 is 0 bytes after a block of size 16 alloc'd
+==1558274==    at 0x48447A8: malloc (vg_replace_malloc.c:446)
+==1558274==    by 0x10B783: newPacket (socket_manager.c:79)
+==1558274==    by 0x10BDA7: run_recv_daemon (socket_manager.c:235)
+==1558274==    by 0x10BF14: run_recv_daemon_async (socket_manager.c:265)
+==1558274==    by 0x4DF239C: start_thread (pthread_create.c:447)
+==1558274==    by 0x4E772A3: clone (clone.S:100)
+==1558274== 
+==1558274== ERROR SUMMARY: 445 errors from 9 contexts (suppressed: 0 from 0)

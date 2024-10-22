@@ -111,19 +111,24 @@ int send_and_wait_for_ack(socket_manager *manager, Packet packet,
              seqnumber, ackmap_hash(key, ACKMAP_CARDINALITY), count);
     }
     if (count >= MAX_RETRY) {
-      perror("couldn't send packet");
+      printf("couldn't send packet");
       exit(1);
       break;
     }
     if (send_to_socket(manager->fd, packet.buffer, packet.size, packet.addr) <
         0) {
-      perror("couldn't send data to socket");
+      printf("couldn't send data to socket");
       exit(1);
       break;
     }
 
     count++;
-    ackReceived = *((int *)hashmap_get(manager->ack_map, key));
+	void* mapValue = hashmap_get(manager->ack_map, key);
+	if (mapValue == NULL){
+		printf("hashamp sucks!\n");
+		return -1;
+	}
+    ackReceived = *((int *)mapValue);
     usleep(RETRY_SLEEP); // 100ms
   }
 
@@ -147,7 +152,7 @@ int send_ack(socket_manager *manager, char *received_buf,
 
 int handle_recieved_app_packet(socket_manager *manager, Packet packet) {
   if (send_ack(manager, packet.buffer, packet.addr) < 0) {
-    perror("couldn't send ack");
+    printf("couldn't send ack");
     return -1;
   }
 
@@ -168,8 +173,8 @@ int handle_recieved_ack_packet(socket_manager *manager, Packet packet) {
   /*printf("SEQ %hu acked successfully, hash: %d size: %d\n", key->seqnumber,*/
   /*       ackmap_hash(key, ACKMAP_CARDINALITY), manager->ack_map->size);*/
   int *status = hashmap_get(manager->ack_map, key);
-
   free(key);
+
   if (status == NULL) {
     return 0;
   }
@@ -178,10 +183,10 @@ int handle_recieved_ack_packet(socket_manager *manager, Packet packet) {
   return 0;
 }
 
-void app_send(socket_manager *manager, Packet packet) {
+unsigned short app_send(socket_manager *manager, Packet packet) {
   if (packet.size + PROTOCOL_OVERHEAD > DG_MAXSIZE) {
-    perror("packet too big");
-    return;
+    printf("packet too big");
+    return 0;
   }
 
   char *new_buffer = malloc(packet.size + PROTOCOL_OVERHEAD);
@@ -199,9 +204,10 @@ void app_send(socket_manager *manager, Packet packet) {
   // return;
 
   if (send_and_wait_for_ack(manager, packet, seqnumber) < 0) {
-    perror("couldn't send packet");
+    printf("couldn't send packet");
   }
   free(new_buffer);
+  return seqnumber;
 }
 
 Packet *app_recv(socket_manager *manager) {
@@ -212,7 +218,7 @@ Packet *app_recv(socket_manager *manager) {
   // manager->recieve_buffer->root, manager->recieve_buffer->end);
 
   if (packet == NULL) {
-    perror("recieved packet is null!, exiting");
+    printf("recieved packet is null!, exiting");
     exit(1);
   }
   return packet;
@@ -226,7 +232,7 @@ int run_recv_daemon(socket_manager *manager) {
     int recv_len = recv_from_socket(manager->fd, buf, DG_MAXSIZE, &client_addr);
 
     if (recv_len < 0) {
-      perror("can't recv data");
+      printf("can't recv data");
       exit(EXIT_FAILURE);
     }
 
@@ -238,20 +244,21 @@ int run_recv_daemon(socket_manager *manager) {
     switch (packet_type) {
     case 0:
       if (handle_recieved_app_packet(manager, packet)) {
-        perror("couldn't process app packet");
-        return -1;
+        printf("couldn't process app packet");
+        exit(EXIT_FAILURE);
       }
 
       break;
     case 1:
 
       if (handle_recieved_ack_packet(manager, packet)) {
-        perror("couldn't process ack packet");
-        return -1;
+        printf("couldn't process ack packet");
+        exit(EXIT_FAILURE);
       }
       break;
     default:
-      perror("unknown package recieved");
+      printf("unknown packet received");
+      exit(EXIT_FAILURE);
     }
   }
 }

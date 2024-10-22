@@ -11,7 +11,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <unistd.h>
 
+#include "md5.h"
+#include "net/socket_manager.h"
 typedef struct fileinfo {
 	char* name;
 	char* data;

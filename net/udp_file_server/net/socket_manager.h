@@ -37,7 +37,7 @@ typedef struct socket_manager {
 socket_manager *new_socket_manager(int socket_fd);
 Packet newPacket(struct sockaddr_in *addr, char *buf, int bufferSize);
 
-void app_send(socket_manager *manager, Packet packet);
+unsigned short app_send(socket_manager *manager, Packet packet);
 Packet *app_recv(socket_manager *manager);
 int run_recv_daemon(socket_manager *manager);
 void *run_recv_daemon_async(void *arg);

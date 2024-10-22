@@ -1,5 +1,7 @@
+#include "data_structures/hashmap.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,25 +12,115 @@
 
 #include "file_utils.h"
 #include "net/socket_manager.h"
-#include "table.h"
+#include "print_utils.h"
 
 #define SERVER "127.0.0.1" // Server IP address
 #define TARGET_DIR "./files/"
+#define RESPONSE_TIMEOUT 5000000
+#define RESPONSE_WAIT_TIME 100000
 
 struct sockaddr_in server_address;
 unsigned int server_length = sizeof(struct sockaddr);
 socket_manager *manager;
 
+typedef struct RecieveHookEntry {
+  int ready;
+  void *buffer;
+  int buffersize;
+} RecieveHookEntry;
+hashmap *receiveHooks;
+
+int compare_short(void *a, void *b) {
+  return *(unsigned short *)a - *(unsigned short *)b;
+}
+uint32_t hash_short(void *a, int size) { return *(unsigned short *)a; }
+
+int conn_ready = 0;
+#define HOOK_CARDINALITY 1024
+pthread_mutex_t hookLock;
+
+void upsertHook(unsigned short seqnumber, int ready, void *buffer,
+                int buffersize) {
+  RecieveHookEntry entry;
+  entry.ready = ready;
+  entry.buffer = buffer;
+  entry.buffersize = buffersize;
+
+  pthread_mutex_lock(&hookLock);
+  if (hashmap_get(receiveHooks, &seqnumber) != NULL && ready == 0) {
+    // if already exists, then it updates only if ready is 1 (it doesn't
+    // recreate or reverse ready to 0
+
+    pthread_mutex_unlock(&hookLock);
+    return;
+  }
+  hashmap_set(receiveHooks, &seqnumber, &entry);
+
+  pthread_mutex_unlock(&hookLock);
+}
+
+void *RecieveHandler(void *args) {
+  pthread_mutex_init(&hookLock, NULL);
+  receiveHooks =
+      create_hashsmap(HOOK_CARDINALITY, sizeof(unsigned short),
+                      sizeof(RecieveHookEntry), compare_short, hash_short);
+  conn_ready = 1;
+  while (1) {
+    Packet *packet = app_recv(manager);
+    if (packet == NULL) {
+      printf("Empty packet recieved!\n");
+      continue;
+    }
+
+    unsigned short seqnumber = *((unsigned short *)(packet->buffer + 1));
+    upsertHook(seqnumber, 1, packet->buffer, packet->size);
+    free(packet->addr);
+  }
+}
+RecieveHookEntry waitForRes(unsigned short seqnumber) {
+
+  unsigned int waitTime = 0;
+  upsertHook(seqnumber, 0, NULL, 0);
+
+  while (1) {
+    RecieveHookEntry *entry =
+        (RecieveHookEntry *)hashmap_get(receiveHooks, &seqnumber);
+    if (entry == NULL) {
+      printf("hashmap sucks!\n");
+      exit(1);
+    }
+    if (entry->ready) {
+      return *entry;
+      break;
+    }
+    usleep(RESPONSE_WAIT_TIME);
+    waitTime += RESPONSE_WAIT_TIME;
+    if (waitTime > RESPONSE_TIMEOUT) {
+      printf("timeout reached to get response for seq %d\n", seqnumber);
+      exit(1);
+    }
+  }
+}
+
 int rid = 0;
 int ping() {
   char *message = "ping";
-  char buf[DG_MAXSIZE];
 
-  app_send(manager, newPacket(&server_address, message, strlen(message) + 1));
+  unsigned short seqnumber = app_send(
+      manager, newPacket(&server_address, message, strlen(message) + 1));
 
-  Packet *packet = app_recv(manager);
+  if (seqnumber == 0) {
+    printf("invalid seqnumber %hu!\n", seqnumber);
+    return -1;
+  }
 
-  printf("Received reply: %s\n", packet->buffer + PROTOCOL_OVERHEAD);
+  RecieveHookEntry entry = waitForRes(seqnumber);
+
+  printf("Received reply: ");
+  try_print(entry.buffer + PROTOCOL_OVERHEAD,
+            entry.buffersize - PROTOCOL_OVERHEAD);
+  free(entry.buffer);
+
   return 0;
 }
 
@@ -42,18 +134,23 @@ int list_files(dir_files *result) {
   while (1) {
     sprintf(message, "list-%d-%d", limit, result->filecounts);
 
-    app_send(manager, newPacket(&server_address, message, strlen(message) + 1));
+    unsigned short seqnumber = app_send(
+        manager, newPacket(&server_address, message, strlen(message) + 1));
 
-    Packet *packet = app_recv(manager);
+    RecieveHookEntry entry = waitForRes(seqnumber);
 
     char *recievedData;
-    if (packet->size > PROTOCOL_OVERHEAD) {
-      recievedData = packet->buffer + PROTOCOL_OVERHEAD;
+    if (entry.buffersize > PROTOCOL_OVERHEAD) {
+      recievedData = entry.buffer + PROTOCOL_OVERHEAD;
     } else {
       recievedData = "";
-	  break;
+      break;
     }
-    printf("recieved %s\n", recievedData);
+
+    printf("data  %hu recieved ", seqnumber);
+    try_print(recievedData, entry.buffersize - PROTOCOL_OVERHEAD);
+
+
     if (strlen(recievedData) == 0) {
       break;
     }
@@ -108,7 +205,7 @@ int get_file(dir_files files, int fileid) {
   if (files.filecounts == 0) {
     printf("file list is empty, getting list\n");
     if (list_files(&files)) {
-      perror("couldn't get file list");
+      printf("couldn't get file list");
       return -1;
     }
   }
@@ -120,11 +217,12 @@ int get_file(dir_files files, int fileid) {
   for (int i = 0; i < file.size; i += DG_MAXSIZE) {
     int chunk_size = i + DG_MAXSIZE > file.size ? file.size - i : DG_MAXSIZE;
     sprintf(message, "get-%d-%d-%d", fileid, i, chunk_size);
-    app_send(manager, newPacket(&server_address, message, strlen(message)));
+    unsigned short seqnumber =
+        app_send(manager, newPacket(&server_address, message, strlen(message)));
 
-    Packet *packet = app_recv(manager);
+    RecieveHookEntry entry = waitForRes(seqnumber);
 
-    memcpy(res + i, packet->buffer, chunk_size);
+    memcpy(res + i, entry.buffer, chunk_size);
   }
 
   printf("%s %d %d\n", file.name, file.size, fileid);
@@ -133,7 +231,7 @@ int get_file(dir_files files, int fileid) {
   strcat(target_file, file.name);
 
   if (write_to_file(target_file, res, file.size) < 0) {
-    perror("couldn't write to file");
+    printf("couldn't write to file");
     return -1;
   };
 
@@ -213,7 +311,7 @@ int op(int port) {
   int sockfd;
   sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   if (sockfd < 0) {
-    perror("socket");
+    printf("socket");
     exit(EXIT_FAILURE);
   }
 
@@ -221,7 +319,7 @@ int op(int port) {
   // tv.tv_sec = 0;
   // tv.tv_usec = (int)1e2;
   // if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
-  //     perror("can't set timeout for recieve");
+  //     printf("can't set timeout for recieve");
   // }
 
   memset((char *)&server_address, 0, sizeof(server_address));
@@ -234,14 +332,27 @@ int op(int port) {
   }
 
   manager = new_socket_manager(sockfd);
-  if (pthread_create(&manager->recvDaemonID, NULL, run_recv_daemon_async, (void *)manager) != 0) {
-    perror("Failed to create thread");
+  if (pthread_create(&manager->recvDaemonID, NULL, run_recv_daemon_async,
+                     (void *)manager) != 0) {
+    printf("Failed to create thread");
     return 1;
   }
 
+  pthread_t pid;
+  if (pthread_create(&pid, NULL, RecieveHandler, NULL) != 0) {
+    printf("Failed to create thread");
+    return 1;
+  }
+
+  while (!conn_ready) {
+    usleep(10000);
+  }
+
+  printf("connection is ready!\n");
   // connection is ready
   dir_files files;
-  ping();
+  /*ping();*/
+  /*printf("######################### ping done ##################\n");*/
   /*list_files(&files);*/
   /*free_file(files);*/
   /*list_files(&files);*/
@@ -259,7 +370,7 @@ int op(int port) {
 int main(int argc, char **argv) {
   sleep(1);
   if (argc != 2) {
-    perror("you must run this like ./server PORT");
+    printf("you must run this like ./server PORT");
     exit(EXIT_FAILURE);
   }
 

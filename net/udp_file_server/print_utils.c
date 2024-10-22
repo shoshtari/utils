@@ -1,4 +1,4 @@
-#include "table.h"
+#include "print_utils.h"
 
 // Function to find the number of digits in an integer
 int num_digits(int num) {
@@ -120,5 +120,23 @@ void print_files(dir_files files){
   free(filesize);
 
 
+}
+char* printable = "!@#$%^&*()+= `<>[]{}/\\-_'\":";
+void try_print(unsigned char* buffer, int size){
+	for(int i = 0; i<size; i++){
+		char c = '?';
+		if (buffer[i] >= 'a' && buffer[i] <= 'z'){
+			c = buffer[i];
+		} else if (buffer[i] >= 'A' && buffer[i] <= 'Z'){
+			c = buffer[i];
+		} else if (buffer[i] >= '0' && buffer[i] <= '9'){
+			c = buffer[i];
+		} else if (strchr(printable, buffer[i])){
+			c = buffer[i];
+		}
+
+		printf("%c", c);
+	}
+	printf("\n");
 }
 

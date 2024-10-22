@@ -8,5 +8,6 @@
 
 // Function to print the table
 void print_files(dir_files files);
+void try_print(unsigned char* buffer, int size);
 
 #endif

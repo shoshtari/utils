@@ -78,14 +78,13 @@ void *hashmap_get(hashmap *map, void *key) {
         iterator = iterator->next;
     }
 
-    perror("key not found to get");
     return NULL;
 }
 
 void hashmap_del(hashmap *map, void *key) {
     uint32_t h = map->hash(key, map->hash_cardinality);
     if (map->data[h] == NULL) {
-        perror("hash not found to delete");
+        printf("hash not found to delete");
         return;
     }
 
@@ -107,7 +106,7 @@ void hashmap_del(hashmap *map, void *key) {
         iterator = iterator->next;
     }
 
-    perror("key not found to delete");
+    printf("key not found to delete");
     return;
 }
 

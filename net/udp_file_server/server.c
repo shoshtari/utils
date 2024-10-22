@@ -10,7 +10,7 @@
 
 #include "file_utils.h"
 #include "net/socket_manager.h"
-#include "table.h"
+#include "print_utils.h"
 
 #define DIR_TO_SERVE "/home/morteza/Pictures/wallpapers"
 
@@ -45,6 +45,7 @@ char *gen_file_list(dir_files files, int limit, int offset) {
   }
   ans[occupied] = '\0';
 
+  printf("%s\n", ans);
   return ans;
 }
 

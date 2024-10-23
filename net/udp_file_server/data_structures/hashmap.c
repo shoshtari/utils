@@ -1,6 +1,7 @@
 #include "hashmap.h"
 
 #include "linklist.h"
+#include <sys/types.h>
 
 hashmap *create_hashsmap(int hash_cardinality, int keysize, int valuesize,
                          int (*compare)(void *, void *),
@@ -134,24 +135,29 @@ void destroy_hashmap(hashmap *map) {
 }
 
 int cmp(void *a, void *b) { return 0; }
-// int main() {
-//     hashmap *map = create_hashsmap(10, sizeof(int), sizeof(int), cmp);
+u_int32_t hash(void *a, int card) { 
+	uint32_t x =  *(u_int32_t *)a;
+	return x % card;
+}
 
-//     int n = 100;
-//     for (int i = 0; i < n; i++) {
-//         int k = i, v = i * i;
-//         hashmap_set(map, &k, &v);
-//     }
-
-//     for (int i = 0; i < n; i += 2) {
-//         int k = i;
-//         hashmap_del(map, &k);
-//     }
-//     for (int i = 1; i < n; i += 2) {
-//         int k = i;
-
-//         printf("%d %d\n", k, *(int *)hashmap_get(map, &k));
-//     }
-
-//     destroy_hashmap(map);
-// }
+/*int main() {*/
+/*  hashmap *map = create_hashsmap(10, sizeof(int), sizeof(int), cmp, hash);*/
+/**/
+/*  int n = 10000;*/
+/*  for (int i = 0; i < n; i++) {*/
+/*    int k = i, v = i * i;*/
+/*    hashmap_set(map, &k, &v);*/
+/*  }*/
+/**/
+/*  for (int i = 0; i < n; i += 2) {*/
+/*    int k = i;*/
+/*    hashmap_del(map, &k);*/
+/*  }*/
+/*  for (int i = 1; i < n; i += 2) {*/
+/*    int k = i;*/
+/**/
+/*    printf("%d %d\n", k, *(int *)hashmap_get(map, &k));*/
+/*  }*/
+/**/
+/*  destroy_hashmap(map);*/
+/*}*/

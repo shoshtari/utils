@@ -14,7 +14,7 @@
 #include "net/socket_manager.h"
 #include "print_utils.h"
 
-#define DIR_TO_SERVE "/home/mpc/Pictures/Wallpapers"
+#define DIR_TO_SERVE "/home/morteza/Pictures/wallpapers"
 #define LAZY_LOAD 1
 #define POOL_SIZE 32
 socket_manager *manager;
@@ -64,7 +64,6 @@ void *make_server_packet(void *buffer, int bufferSize,
 sem_t poolSemaphore;
 void serve(dir_files files) {
 
-  printf("serving %d files\n", files.filecounts);
 
   Packet sendPacket;
   fflush(stdout);
@@ -207,6 +206,7 @@ int main(int argc, char **argv) {
 
   printf("Server listening on port %d\n", port);
 
+  printf("serving %d files\n", files.filecounts);
   pthread_t pids[POOL_SIZE];
   for (int i = 0; i < POOL_SIZE; i++) {
     pthread_create(&pids[i], NULL, runWorker, &files);

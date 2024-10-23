@@ -285,7 +285,7 @@ int get_file(dir_files files, int fileid) {
 void menu() {
   int action;
   int number;
-
+    dir_files files;
   while (1) {
     // Display the menu
     printf("Menu:\n");
@@ -304,23 +304,20 @@ void menu() {
       continue;
     }
 
-    dir_files files;
-    list_files(&files);
+
     // Handle the selected action
     switch (action) {
     case 1:
       ping();
       break;
     case 2:
-      free_file(files);
       list_files(&files);
       print_files(files);
       break;
     case 3:
       printf("Please enter a number: ");
       if (scanf("%d", &number) == 1) {
-        printf("You selected get %d: Dummy text for getting number %d.\n",
-               number, number);
+        get_file(files, number);
       } else {
         printf("Invalid input for number. Please enter an integer.\n");
         // Clear input buffer if invalid
@@ -329,6 +326,8 @@ void menu() {
       }
       break;
     case 4:
+      app_send(manager, newPacket(&server_address, "exit", 5));
+
       printf("Exiting the menu. Goodbye!\n");
       return; // Exit the loop
     default:
@@ -392,19 +391,19 @@ int op(int port) {
   printf("connection is ready!\n");
   // connection is ready
   dir_files files;
-  ping();
-  printf("######################### ping done ##################\n");
-  list_files(&files);
-  free_file(files);
-  list_files(&files);
-  print_files(files);
-  printf("######################### list done ##################\n");
-
-  get_file(files, 4);
-  free_file(files);
-
-  app_send(manager, newPacket(&server_address, "exit", 5));
-
+  menu();
+  /*ping();*/
+  /*printf("######################### ping done ##################\n");*/
+  /*list_files(&files);*/
+  /*free_file(files);*/
+  /*list_files(&files);*/
+  /*print_files(files);*/
+  /*printf("######################### list done ##################\n");*/
+  /**/
+  /**/
+  /*get_file(files, 1);*/
+  /*free_file(files);*/
+  /**/
   destroy_socket_manager(manager);
 
   printf("Bye!\n");

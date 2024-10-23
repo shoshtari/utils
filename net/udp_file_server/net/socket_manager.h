@@ -7,6 +7,7 @@
 
 #include "../data_structures/hashmap.h"
 #include "../data_structures/linklist.h"
+
 #include "pthread.h"
 
 #define ACKMAP_CARDINALITY 1 << 20

@@ -20,7 +20,8 @@
 #define TARGET_DIR "./files/"
 #define RESPONSE_TIMEOUT 5000000
 #define RESPONSE_WAIT_TIME 500000
-#define DOWNLOAD_POOL_SIZE 20
+#define DOWNLOAD_POOL_SIZE 10
+
 struct sockaddr_in server_address;
 unsigned int server_length = sizeof(struct sockaddr);
 socket_manager *manager;
@@ -228,6 +229,8 @@ void *downloadChunk(void *arg) {
   return NULL;
 }
 int get_file(dir_files files, int fileid) {
+	time_t start_time = time(0);
+
   if (files.filecounts == 0) {
     printf("file list is empty, getting list\n");
     if (list_files(&files)) {
@@ -274,7 +277,7 @@ int get_file(dir_files files, int fileid) {
   free(message);
   free(target_file);
   close(fd);
-  printf("file %s downloaded\n", file.name);
+  printf("file %s downloaded in %d\n", file.name, time(0) - start_time);
 
   return 0;
 }
@@ -397,7 +400,7 @@ int op(int port) {
   print_files(files);
   printf("######################### list done ##################\n");
 
-  get_file(files, 1);
+  get_file(files, 4);
   free_file(files);
 
   app_send(manager, newPacket(&server_address, "exit", 5));

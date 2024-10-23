@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
 #include <dirent.h>
+#include <semaphore.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,11 +14,12 @@
 #include "net/socket_manager.h"
 #include "print_utils.h"
 
-#define DIR_TO_SERVE "/home/morteza/Pictures/wallpapers"
+#define DIR_TO_SERVE "/home/mpc/Pictures/Wallpapers"
 #define LAZY_LOAD 1
-
+#define POOL_SIZE 32
 socket_manager *manager;
 
+int running = 1;
 char *gen_file_list(dir_files files, int limit, int offset) {
   int length = 10000;
   char *ans = malloc(length);
@@ -59,21 +61,19 @@ void *make_server_packet(void *buffer, int bufferSize,
   return newBuffer;
 }
 
+sem_t poolSemaphore;
 void serve(dir_files files) {
-  int recv_len;
 
   printf("serving %d files\n", files.filecounts);
 
   Packet sendPacket;
   fflush(stdout);
 
-  Packet *receivedPacket = NULL;
-  while (1) {
-    if (receivedPacket != NULL) {
-      destroy_packet(*receivedPacket);
-      free(receivedPacket);
-    }
-    receivedPacket = app_recv(manager);
+  while (running) {
+    Packet *receivedPacket = app_recv(manager);
+
+    Packet sendPacket;
+
     unsigned short clientSeq =
         *((unsigned short *)(receivedPacket->buffer + 1));
 
@@ -97,21 +97,22 @@ void serve(dir_files files) {
 
       char *tok = strtok(NULL, "-");
       if (tok == NULL) {
-        printf("invalid command\n");
+        printf("HOOOA %s\n", buf);
+        printf("invalid get command. file not specified\n");
         exit(1);
       }
       int fileid = atoi(tok);
 
       tok = strtok(NULL, "-");
       if (tok == NULL) {
-        printf("invalid command\n");
+        printf("invalid get command. offset not specified\n");
         exit(1);
       }
       int start = atoi(tok);
 
       tok = strtok(NULL, "-");
       if (tok == NULL) {
-        printf("invalid command\n");
+        printf("invalid get command. size not specified\n");
         exit(1);
       }
       int size = atoi(tok);
@@ -129,8 +130,10 @@ void serve(dir_files files) {
       }
       sendPacket = newPacket(receivedPacket->addr, chunk, size);
     } else if (strcmp(command, "exit") == 0) {
+      running = 0;
       destroy_packet(*receivedPacket);
       free(receivedPacket);
+      sem_post(&poolSemaphore);
       return;
     }
 
@@ -140,10 +143,17 @@ void serve(dir_files files) {
     sendPacket.buffer = buffer;
     sendPacket.size += 2;
     app_send(manager, sendPacket);
+    printf("%hu served\n", clientSeq);
     destroy_packet(sendPacket);
+    sem_post(&poolSemaphore);
   }
 }
 
+void *runWorker(void *args) {
+  dir_files files = *((dir_files *)args);
+  serve(files);
+  return NULL;
+}
 int main(int argc, char **argv) {
   printf("running server...\n");
 
@@ -197,7 +207,14 @@ int main(int argc, char **argv) {
 
   printf("Server listening on port %d\n", port);
 
-  serve(files);
+  pthread_t pids[POOL_SIZE];
+  for (int i = 0; i < POOL_SIZE; i++) {
+    pthread_create(&pids[i], NULL, runWorker, &files);
+  }
+  for (int i = 0; i < POOL_SIZE; i++) {
+    pthread_join(pids[i], NULL);
+  }
+  // serve(files);
 
   destroy_socket_manager(manager);
   free_file(files);

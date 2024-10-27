@@ -1,0 +1,10 @@
+#!/usr/bin/bash 
+
+method="self" # self or lets 
+
+
+if [[ $method == self ]]; then
+	openssl req -x509 -newkey rsa:4096 -keyout server.key -out server.crt -sha256 -days 3650 -nodes -subj "/C=XX/ST=StateName/L=CityName/O=CompanyName/OU=CompanySectionName/CN=CommonNameOrHostname"
+else 
+	sudo certbot certonly --manual --preferred-challenges=dns --email foo@gmail.com --server https://acme-v02.api.letsencrypt.org/directory --agree-tos -d test.example.com
+fi 

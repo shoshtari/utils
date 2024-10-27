@@ -1,0 +1,24 @@
+services:
+  nginx:
+    image: nginx
+    restart: always
+    ports:
+      - "8080:80"
+      - "8443:443"
+    # command: 
+    # - sleep 
+    # - infinity
+
+    volumes:
+    - type: bind
+      source: ./certs
+      target: /etc/nginx/certs
+    - type: bind
+      source: ./nginx.conf
+      target: /etc/nginx/nginx.conf
+    depends_on:
+    - server
+
+  server:
+    build: .
+    restart: always

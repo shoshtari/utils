@@ -12,7 +12,7 @@ var addr string
 var tlsEnable bool
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Salam your address is %s\ntls status in final server is %v", r.RemoteAddr, tlsEnable)
+	fmt.Fprintf(w, "Salam your address is %s", r.RemoteAddr)
 }
 
 func main() {
